@@ -281,7 +281,7 @@ export function UpdateProviderDialog({
                 name="apiKey"
                 type="password"
                 placeholder="Enter your API key"
-                defaultValue={provider.apiKey ?? ''}
+                defaultValue={''} //provider.apiKey ??
               />
             </div>
             {renderChannelFields()}
@@ -292,7 +292,7 @@ export function UpdateProviderDialog({
                 name="apiSecret"
                 type="password"
                 placeholder="Enter your API secret (if applicable)"
-                defaultValue={provider.secretKey ?? ''}
+                defaultValue={''} // provider.secretKey ??
               />
             </div>
             <div className="space-y-2">

@@ -1,16 +1,16 @@
-'use client';
+// 'use client';
 
-import { useUpdateUserProfileEndpoint } from '@/api/generated/teammate.web';
-import { useUserProfile } from './useUserProfile';
+// import { useUpdateUserProfileEndpoint } from '@/api/generated/teammate.web';
+// import { useUserProfile } from './useUserProfile';
 
-export function useUpdateProfile() {
-  const profileQuery = useUserProfile();
-  return useUpdateUserProfileEndpoint({
-    mutation: {
-      onSuccess: () => {
-        // simplest & precise
-        profileQuery.refetch();
-      },
-    },
-  });
-}
+// export function useUpdateProfile() {
+//   const profileQuery = useUserProfile();
+//   return useUpdateUserProfileEndpoint({
+//     mutation: {
+//       onSuccess: () => {
+//         // simplest & precise
+//         profileQuery.refetch();
+//       },
+//     },
+//   });
+// }

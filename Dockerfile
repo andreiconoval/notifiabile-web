@@ -29,6 +29,9 @@ ARG NEXT_PUBLIC_SUPABASE_PROJECTID
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+# Enable standalone output for Docker builds
+ENV DOCKER_BUILD=true
+
 # Build the application
 RUN pnpm build
 

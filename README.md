@@ -12,12 +12,13 @@
 6. [Authentication, OAuth & MCP flows](#authentication-oauth--mcp-flows)
 7. [Environment & secrets](#environment--secrets)
 8. [Development workflow](#development-workflow)
-9. [API generation workflow](#api-generation-workflow)
-10. [Directory reference](#directory-reference)
-11. [Data seeding & fixtures](#data-seeding--fixtures)
-12. [Documentation index](#documentation-index)
-13. [Conventions & checklists](#conventions--checklists)
-14. [Known gaps & follow-ups](#known-gaps--follow-ups)
+9. [Docker deployment](#docker-deployment)
+10. [API generation workflow](#api-generation-workflow)
+11. [Directory reference](#directory-reference)
+12. [Data seeding & fixtures](#data-seeding--fixtures)
+13. [Documentation index](#documentation-index)
+14. [Conventions & checklists](#conventions--checklists)
+15. [Known gaps & follow-ups](#known-gaps--follow-ups)
 
 ---
 
@@ -192,6 +193,70 @@ Supabase project metadata (projectId + anon key) is kept in `src/utils/supabase/
 2. Install deps: `npm install` (or `pnpm install`).
 3. Start `npm run dev`.
 4. Supabase edge functions (`/functions/v1/make-server-6ccce88d`) must be reachable for legacy endpoints; the generated API client uses whatever `servers[].url` is defined inside `openapi.json`.
+
+---
+
+## Docker deployment
+
+The project includes a multi-stage Dockerfile optimized for production with Next.js standalone output.
+
+### Build arguments (NEXT_PUBLIC_* variables)
+
+These are baked into the JavaScript bundle at build time and exposed to the browser:
+
+| Argument | Description |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | Base URL for the API (e.g., `https://api.notifiable.com`) |
+| `NEXT_PUBLIC_SUPABASE_PROJECTID` | Supabase project ID |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anon key |
+
+### Runtime environment variables
+
+These are server-side only and never exposed to the browser:
+
+| Variable | Description |
+| --- | --- |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret) |
+| `JWT_SECRET` | Secret for signing MCP access tokens |
+| `API_BASE_URL` | Server-side API base URL override |
+
+### Building the Docker image
+
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com \
+  --build-arg NEXT_PUBLIC_SUPABASE_PROJECTID=your-project-id \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key \
+  -t notifiable-web .
+```
+
+### Running the container
+
+```bash
+# Basic run
+docker run -p 3000:3000 notifiable-web
+
+# With runtime environment variables
+docker run -p 3000:3000 \
+  -e SUPABASE_SERVICE_ROLE_KEY=your-secret-key \
+  -e JWT_SECRET=your-jwt-secret \
+  notifiable-web
+
+# Using an env file
+docker run -p 3000:3000 --env-file .env.production notifiable-web
+```
+
+### Deploying with Dokploy
+
+1. **Build Arguments**: Go to your application → **Advanced** → **Build Args** and add all `NEXT_PUBLIC_*` variables.
+
+2. **Environment Variables**: Go to your application → **Environment** and add server-side secrets (`SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET`, etc.).
+
+3. **Port**: The container exposes port `3000` by default.
+
+> The Dockerfile uses Node 22 Alpine, pnpm, and runs as a non-root user for security.
 
 ---
 

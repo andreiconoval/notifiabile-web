@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { jwtDecode } from 'jwt-decode';
-import type { OrganizationRoleAuth } from '@/api/generated/schemas';
+// import type { OrganizationRoleAuth } from '@/api/generated/schemas';
 
 type JwtPayload = { exp?: number; [k: string]: unknown };
 
@@ -9,9 +9,9 @@ export type AuthState = {
   accessToken: string | null;
   refreshToken: string | null;
   userId: string | null;
-  organizationRole: OrganizationRoleAuth | null;
+  organizationRole: string | null; //OrganizationRoleAuth | null;
   setTokens: (access: string, refresh: string | null) => void;
-  setUserAuth: (userId?: string, organizationRole?: OrganizationRoleAuth) => void;
+  setUserAuth: (userId?: string, organizationRole?: string | null) => void;
   clear: () => void;
   isAccessExpired: () => boolean;
   secondsToExpiry: () => number | null;
@@ -30,7 +30,7 @@ export const useAuth = create<AuthState>()(
       organizationRole: null,
       setTokens: (access, refresh) =>
         set({ accessToken: access, refreshToken: refresh ?? get().refreshToken }),
-      setUserAuth: (userId?: string, organizationRole?: OrganizationRoleAuth) =>
+      setUserAuth: (userId?: string, organizationRole?: string | null) =>
         set({ userId: userId, organizationRole: organizationRole }),
       clear: () =>
         set({ accessToken: null, refreshToken: null, userId: undefined, organizationRole: null }),

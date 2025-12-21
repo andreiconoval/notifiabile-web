@@ -140,7 +140,6 @@ export function CreateProviderDialog({
 
     try {
       const payload: CreateProviderRequest = {
-        organizationId: orgId,
         channelType: selectedChannel,
         type,
         displayName: name,
