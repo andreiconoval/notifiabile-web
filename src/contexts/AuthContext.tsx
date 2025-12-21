@@ -45,7 +45,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const supabase = createClient(`https://${projectId}.supabase.co`, publicAnonKey);
+const supabase = createClient(
+  `https://${process.env.NEXT_PUBLIC_SUPABASE_PROJECTID}.supabase.co`,
+  publicAnonKey,
+);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
