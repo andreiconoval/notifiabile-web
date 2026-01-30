@@ -146,7 +146,7 @@ export default function DashboardLayout({ children, currentPage }: DashboardLayo
 
   return (
     <>
-      {!hasSeededData && selectedOrg && (
+      {/* {!hasSeededData && selectedOrg && (
         <Card className="mb-6 border-indigo-200 bg-indigo-50">
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export default function DashboardLayout({ children, currentPage }: DashboardLayo
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       <div className="h-screen flex bg-gray-50">
         {/* Desktop Sidebar */}

@@ -132,13 +132,13 @@ export default function AuthPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full mt-6" disabled={loading}>
                     {loading ? 'Signing in...' : 'Sign In'}
                   </Button>
                 </CardFooter>
               </form>
 
-              {/* OAuth Divider */}
+              {/* OAuth Divider
               <div className="px-6 py-4">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -150,12 +150,12 @@ export default function AuthPage() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* OAuth Login Button */}
-              <div className="px-6 pb-6">
+              {/* <div className="px-6 pb-6">
                 <OAuthLoginButton className="w-full">Login with OAuth</OAuthLoginButton>
-              </div>
+              </div> */}
             </Card>
           </TabsContent>
 
@@ -193,7 +193,7 @@ export default function AuthPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full mt-6" disabled={loading}>
                     {loading ? 'Creating account...' : 'Create Account'}
                   </Button>
                 </CardFooter>
