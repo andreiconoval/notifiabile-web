@@ -6,7 +6,7 @@
  * OpenAPI spec version: v1
  */
 
-export interface ListInternalNotificationsRequest {
+export interface ListApiKeysRequest {
   /** @nullable */
   organizationId?: string | null;
 }

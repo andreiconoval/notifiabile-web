@@ -6,10 +6,13 @@
  * OpenAPI spec version: v1
  */
 
-export interface UpdateOrganizationRequest {
-  /** @nullable */
-  organizationId?: string | null;
+export interface CreateApiKeyResponse {
+  id?: string;
+  rawKey?: string;
+  keyPrefix?: string;
   name?: string;
+  scopes?: string[];
+  createdAt?: string;
   /** @nullable */
-  timezone?: string | null;
+  expiresAt?: string | null;
 }

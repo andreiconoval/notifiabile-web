@@ -8,6 +8,8 @@
 import type { NotificationChannelType } from './notificationChannelType';
 
 export interface ResolveRequest {
+  /** @nullable */
+  organizationId?: string | null;
   channelType?: NotificationChannelType;
   language?: string;
   /** @nullable */

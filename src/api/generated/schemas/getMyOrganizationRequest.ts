@@ -7,5 +7,6 @@
  */
 
 export interface GetMyOrganizationRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

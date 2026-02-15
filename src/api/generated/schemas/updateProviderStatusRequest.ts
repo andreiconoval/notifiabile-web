@@ -8,5 +8,7 @@
 import type { ProviderStatus } from './providerStatus';
 
 export interface UpdateProviderStatusRequest {
+  /** @nullable */
+  organizationId?: string | null;
   status: ProviderStatus;
 }

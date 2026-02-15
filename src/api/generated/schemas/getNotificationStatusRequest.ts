@@ -7,5 +7,6 @@
  */
 
 export interface GetNotificationStatusRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

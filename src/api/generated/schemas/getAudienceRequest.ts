@@ -7,5 +7,6 @@
  */
 
 export interface GetAudienceRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

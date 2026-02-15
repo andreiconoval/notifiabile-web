@@ -8,6 +8,8 @@
 
 export interface UpdateChannelRequest {
   /** @nullable */
+  organizationId?: string | null;
+  /** @nullable */
   isActive?: boolean | null;
   /** @nullable */
   description?: string | null;

@@ -9,6 +9,8 @@ import type { ContactUpsertRequestAttributes } from './contactUpsertRequestAttri
 
 export interface ContactUpsertRequest {
   /** @nullable */
+  organizationId?: string | null;
+  /** @nullable */
   id?: string | null;
   /** @nullable */
   externalId?: string | null;

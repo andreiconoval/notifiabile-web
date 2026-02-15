@@ -4,7 +4,6 @@ import type {
   Notification,
   Campaign,
   Template,
-  ApiKey,
   Webhook,
   AuditLog,
   AnalyticsOverview,
@@ -117,18 +116,6 @@ class ApiClient {
     variables?: string[];
   }) {
     return this.request<Template>('/templates', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  // API Keys
-  async getApiKeys(orgId: string) {
-    return this.request<{ keys: ApiKey[] }>(`/api-keys?orgId=${orgId}`);
-  }
-
-  async createApiKey(data: { orgId: string; name: string; scopes?: string[]; env: Environment }) {
-    return this.request<ApiKey>('/api-keys', {
       method: 'POST',
       body: JSON.stringify(data),
     });

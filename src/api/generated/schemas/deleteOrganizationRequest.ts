@@ -7,5 +7,6 @@
  */
 
 export interface DeleteOrganizationRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

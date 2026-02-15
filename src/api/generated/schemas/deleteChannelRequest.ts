@@ -7,5 +7,6 @@
  */
 
 export interface DeleteChannelRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

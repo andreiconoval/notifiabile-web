@@ -7,5 +7,6 @@
  */
 
 export interface ListProvidersRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

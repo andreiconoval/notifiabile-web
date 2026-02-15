@@ -7,5 +7,6 @@
  */
 
 export interface TemplateQuery {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

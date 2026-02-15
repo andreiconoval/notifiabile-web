@@ -8,6 +8,8 @@
 import type { NotificationChannelType } from './notificationChannelType';
 
 export interface CreateChannelRequest {
+  /** @nullable */
+  organizationId?: string | null;
   type: NotificationChannelType;
   isActive?: boolean;
   /** @nullable */

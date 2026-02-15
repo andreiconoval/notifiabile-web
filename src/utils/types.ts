@@ -126,19 +126,6 @@ export interface Webhook {
   createdBy: string;
 }
 
-export interface ApiKey {
-  id: string;
-  orgId: string;
-  name: string;
-  key: string;
-  scopes: string[];
-  env: Environment;
-  created: string;
-  createdBy: string;
-  lastUsed?: string;
-  ipAllowlist?: string[];
-}
-
 export interface AuditLog {
   userId: string;
   orgId: string;

@@ -8,5 +8,7 @@
 
 export interface RemoveAudienceMemberRequest {
   id?: string;
+  /** @nullable */
+  organizationId?: string | null;
   contactId?: string;
 }

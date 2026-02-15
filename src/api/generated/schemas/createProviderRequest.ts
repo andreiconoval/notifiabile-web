@@ -11,6 +11,8 @@ import type { CreateProviderRequestSettings } from './createProviderRequestSetti
 import type { ProviderStatus } from './providerStatus';
 
 export interface CreateProviderRequest {
+  /** @nullable */
+  organizationId?: string | null;
   channelType: NotificationChannelType;
   type: ProviderType;
   /** @nullable */

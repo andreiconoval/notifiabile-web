@@ -7,5 +7,6 @@
  */
 
 export interface GetProviderByIdRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

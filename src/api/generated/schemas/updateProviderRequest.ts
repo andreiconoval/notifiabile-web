@@ -10,6 +10,8 @@ import type { UpdateProviderRequestStatus } from './updateProviderRequestStatus'
 
 export interface UpdateProviderRequest {
   /** @nullable */
+  organizationId?: string | null;
+  /** @nullable */
   displayName?: string | null;
   /** @nullable */
   apiKey?: string | null;

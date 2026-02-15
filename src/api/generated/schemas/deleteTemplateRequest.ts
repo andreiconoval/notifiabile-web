@@ -7,5 +7,6 @@
  */
 
 export interface DeleteTemplateRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

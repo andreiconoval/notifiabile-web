@@ -8,6 +8,8 @@
 
 export interface ConsumeInternalNotificationRequest {
   /** @nullable */
+  organizationId?: string | null;
+  /** @nullable */
   userId?: string | null;
   /** @nullable */
   email?: string | null;

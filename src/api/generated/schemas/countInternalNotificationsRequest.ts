@@ -7,5 +7,6 @@
  */
 
 export interface CountInternalNotificationsRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

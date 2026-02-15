@@ -7,5 +7,6 @@
  */
 
 export interface ListContactsRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

@@ -7,5 +7,7 @@
  */
 
 export interface DeleteContactRequest {
+  /** @nullable */
+  organizationId?: string | null;
   id?: string;
 }

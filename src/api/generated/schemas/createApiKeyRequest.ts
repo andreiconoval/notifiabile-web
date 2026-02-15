@@ -6,7 +6,18 @@
  * OpenAPI spec version: v1
  */
 
-export interface ListInternalNotificationsRequest {
+export interface CreateApiKeyRequest {
   /** @nullable */
   organizationId?: string | null;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  name: string;
+  /**
+   * @minLength 1
+   */
+  scopes: string[];
+  /** @nullable */
+  expiresAt?: string | null;
 }

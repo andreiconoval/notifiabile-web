@@ -19,4 +19,6 @@ export interface TemplateCreateRequest {
   /** @nullable */
   content?: TemplateCreateRequestContent;
   language?: string;
+  /** @nullable */
+  organizationId?: string | null;
 }

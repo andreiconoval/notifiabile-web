@@ -8,6 +8,8 @@
 import type { AudienceMembershipKind } from './audienceMembershipKind';
 
 export interface AddAudienceMemberRequest {
+  /** @nullable */
+  organizationId?: string | null;
   contactId?: string;
   kind?: AudienceMembershipKind;
 }

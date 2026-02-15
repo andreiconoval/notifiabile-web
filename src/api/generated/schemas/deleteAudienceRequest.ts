@@ -8,4 +8,6 @@
 
 export interface DeleteAudienceRequest {
   id?: string;
+  /** @nullable */
+  organizationId?: string | null;
 }

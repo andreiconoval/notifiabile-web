@@ -19,10 +19,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -103,13 +103,31 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
+        "requestBody": {
+          "x-name": "DeleteOrganizationRequest",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteOrganizationRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteOrganizationRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -146,10 +164,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -195,10 +213,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -212,6 +230,201 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/api/identity/api-keys": {
+      "post": {
+        "operationId": "CreateApiKeyEndpoint",
+        "parameters": [
+          {
+            "name": "x-Organization-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateApiKeyRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateApiKeyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "ListApiKeysEndpoint",
+        "parameters": [
+          {
+            "name": "x-Organization-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiKeyResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/api/identity/api-keys/{id}": {
+      "get": {
+        "operationId": "GetApiKeyEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "x-Organization-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "RevokeApiKeyEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "x-Organization-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "RevokeApiKeyRequest",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeApiKeyRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeApiKeyRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
           },
           "401": {
             "description": "Unauthorized"
@@ -241,10 +454,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -316,10 +529,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -395,10 +608,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -445,10 +658,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -553,10 +766,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -592,10 +805,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             },
             "example": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
           }
@@ -645,10 +858,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -736,10 +949,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -784,13 +997,31 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
+        "requestBody": {
+          "x-name": "DeleteProviderRequest",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteProviderRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteProviderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -820,10 +1051,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -863,10 +1094,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -922,13 +1153,26 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
+        "requestBody": {
+          "x-name": "MakeDefaultProviderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MakeDefaultProviderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -961,10 +1205,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1007,10 +1251,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1077,10 +1321,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1129,13 +1373,31 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
+        "requestBody": {
+          "x-name": "DeleteChannelRequest",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteChannelRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteChannelRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -1168,10 +1430,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1215,10 +1477,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1276,10 +1538,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1335,10 +1597,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1381,13 +1643,31 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
+        "requestBody": {
+          "x-name": "DeleteTemplateRequest",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTemplateRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTemplateRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -1414,10 +1694,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1514,10 +1794,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1552,10 +1832,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1605,10 +1885,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1660,10 +1940,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1707,10 +1987,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1786,10 +2066,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1824,10 +2104,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1886,10 +2166,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -1932,10 +2212,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2009,10 +2289,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2049,10 +2329,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2130,10 +2410,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2179,10 +2459,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2226,10 +2506,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2279,10 +2559,10 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
-            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid"
+              "format": "guid",
+              "nullable": true
             }
           }
         ],
@@ -2359,6 +2639,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
@@ -2370,21 +2655,213 @@
       },
       "DeleteOrganizationRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "GetMyOrganizationRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "UpdateOrganizationRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
           "timezone": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateApiKeyResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "rawKey": {
+            "type": "string"
+          },
+          "keyPrefix": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "CreateApiKeyRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "scopes"
+        ],
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0,
+            "nullable": false
+          },
+          "scopes": {
+            "type": "array",
+            "minLength": 1,
+            "nullable": false,
+            "items": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "the dto used to send an error response to the client",
+        "additionalProperties": false,
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "description": "the http status code sent to the client. default is 400.",
+            "format": "int32",
+            "default": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "the message for the error response",
+            "default": "One or more errors occurred!"
+          },
+          "errors": {
+            "type": "object",
+            "description": "the collection of errors for the current context",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ApiKeyResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "keyPrefix": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "revokedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastUsedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetApiKeyRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
+      },
+      "ListApiKeysRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
+      },
+      "RevokeApiKeyRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
             "nullable": true
           }
         }
@@ -2416,6 +2893,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "userId": {
             "type": "string",
             "format": "guid",
@@ -2443,7 +2925,14 @@
       },
       "CountInternalNotificationsRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "InternalNotificationListResponse": {
         "type": "object",
@@ -2459,11 +2948,25 @@
       },
       "ListInternalNotificationsRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "GetNotificationStatusRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "NotificationListResponse": {
         "type": "object",
@@ -2582,7 +3085,14 @@
       },
       "GetNotificationsListRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "NotificationReadState": {
         "type": "string",
@@ -2601,6 +3111,7 @@
       "EnqueueNotificationRequest": {
         "type": "object",
         "example": {
+          "organizationId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
           "channelType": "email",
           "recipients": {
             "emails": [
@@ -2624,7 +3135,17 @@
           "correlationId": null
         },
         "additionalProperties": false,
+        "required": [
+          "organizationId"
+        ],
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "minLength": 1,
+            "nullable": false,
+            "example": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+          },
           "channelType": {
             "example": "email",
             "$ref": "#/components/schemas/NotificationChannelType"
@@ -2776,34 +3297,6 @@
           }
         }
       },
-      "ErrorResponse": {
-        "type": "object",
-        "description": "the dto used to send an error response to the client",
-        "additionalProperties": false,
-        "properties": {
-          "statusCode": {
-            "type": "integer",
-            "description": "the http status code sent to the client. default is 400.",
-            "format": "int32",
-            "default": 400
-          },
-          "message": {
-            "type": "string",
-            "description": "the message for the error response",
-            "default": "One or more errors occurred!"
-          },
-          "errors": {
-            "type": "object",
-            "description": "the collection of errors for the current context",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "ProviderResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -2937,6 +3430,11 @@
           "type"
         ],
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "channelType": {
             "$ref": "#/components/schemas/NotificationChannelType"
           },
@@ -2989,24 +3487,57 @@
       },
       "DeleteProviderRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "GetProviderByIdRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "ListProvidersRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "MakeDefaultProviderRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "UpdateProviderRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "displayName": {
             "type": "string",
             "nullable": true
@@ -3064,6 +3595,11 @@
           "status"
         ],
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "status": {
             "$ref": "#/components/schemas/ProviderStatus"
           }
@@ -3123,6 +3659,11 @@
           "type"
         ],
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "type": {
             "$ref": "#/components/schemas/NotificationChannelType"
           },
@@ -3141,20 +3682,46 @@
       },
       "DeleteChannelRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "GetChannelByIdRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "ListChannelsRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "UpdateChannelRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "isActive": {
             "type": "boolean",
             "nullable": true
@@ -3307,6 +3874,11 @@
                 "$ref": "#/components/schemas/TemplateContentDto"
               }
             ]
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           }
         }
       },
@@ -3314,6 +3886,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "channelType": {
             "$ref": "#/components/schemas/NotificationChannelType"
           },
@@ -3336,7 +3913,14 @@
       },
       "GetTemplateByIdRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "PagedResultOfTemplateResponse": {
         "type": "object",
@@ -3364,11 +3948,25 @@
       },
       "TemplateQuery": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "DeleteTemplateRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "TemplateCreateRequest": {
         "type": "object",
@@ -3401,6 +3999,11 @@
           },
           "language": {
             "type": "string"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           }
         }
       },
@@ -3408,6 +4011,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "id": {
             "type": "string",
             "format": "guid"
@@ -3465,7 +4073,14 @@
       },
       "GetContactRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "ListContactsResponse": {
         "type": "object",
@@ -3481,12 +4096,24 @@
       },
       "ListContactsRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "ContactUpsertRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "id": {
             "type": "string",
             "format": "guid",
@@ -3534,6 +4161,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "externalId": {
             "type": "string",
             "nullable": true
@@ -3576,6 +4208,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "contactId": {
             "type": "string",
             "format": "guid"
@@ -3660,6 +4297,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
@@ -3686,6 +4328,11 @@
           "id": {
             "type": "string",
             "format": "guid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           }
         }
       },
@@ -3715,11 +4362,25 @@
       },
       "GetAudienceContactsRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "GetAudienceRequest": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "PagedResultOfAudienceGroupDto": {
         "type": "object",
@@ -3747,7 +4408,14 @@
       },
       "AudienceListQuery": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
       },
       "RemoveAudienceMemberRequest": {
         "type": "object",
@@ -3756,6 +4424,11 @@
           "id": {
             "type": "string",
             "format": "guid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           },
           "contactId": {
             "type": "string",
@@ -3767,6 +4440,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },

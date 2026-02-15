@@ -13,6 +13,10 @@ import type { EnqueueNotificationRequestData } from './enqueueNotificationReques
 import type { NotificationPriority } from './notificationPriority';
 
 export interface EnqueueNotificationRequest {
+  /**
+   * @minLength 1
+   */
+  organizationId: string;
   channelType?: NotificationChannelType;
   recipients?: RecipientSet;
   /** @nullable */

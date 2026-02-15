@@ -7,6 +7,8 @@
  */
 
 export interface CreateOrganizationRequest {
+  /** @nullable */
+  organizationId?: string | null;
   name?: string;
   /** @nullable */
   timezone?: string | null;

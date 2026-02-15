@@ -9,6 +9,8 @@ import type { UpdateContactRequestAttributes } from './updateContactRequestAttri
 
 export interface UpdateContactRequest {
   /** @nullable */
+  organizationId?: string | null;
+  /** @nullable */
   externalId?: string | null;
   /** @nullable */
   email?: string | null;

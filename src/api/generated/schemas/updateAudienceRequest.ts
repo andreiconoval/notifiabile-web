@@ -9,6 +9,8 @@ import type { AudienceType } from './audienceType';
 import type { AudienceFilterRule } from './audienceFilterRule';
 
 export interface UpdateAudienceRequest {
+  /** @nullable */
+  organizationId?: string | null;
   name?: string;
   /** @nullable */
   description?: string | null;

@@ -7,5 +7,6 @@
  */
 
 export interface GetChannelByIdRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

@@ -7,6 +7,7 @@
  */
 import type {
   AddAudienceMemberRequest,
+  ApiKeyResponse,
   AudienceCreateRequest,
   AudienceGroupDto,
   ChannelResponse,
@@ -15,11 +16,17 @@ import type {
   ContactUpsertRequest,
   CountInternalNotificationsEndpointParams,
   CountInternalNotificationsResponse,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
   CreateChannelRequest,
   CreateOrganizationRequest,
   CreateProviderRequest,
   DeleteAudienceRequest,
+  DeleteChannelRequest,
   DeleteContactRequest,
+  DeleteOrganizationRequest,
+  DeleteProviderRequest,
+  DeleteTemplateRequest,
   EnqueueNotificationRequest,
   GetAudienceContactsEndpointParams,
   GetNotificationsListEndpointParams,
@@ -32,6 +39,7 @@ import type {
   ListContactsResponse,
   ListInternalNotificationsEndpointParams,
   ListProvidersEndpointParams,
+  MakeDefaultProviderRequest,
   NotificationListResponse,
   OrganizationResponse,
   PagedResultOfAudienceGroupDto,
@@ -40,6 +48,7 @@ import type {
   ProviderResponse,
   RemoveAudienceMemberRequest,
   ResolveRequest,
+  RevokeApiKeyRequest,
   TemplateCreateRequest,
   TemplateResponse,
   TemplateUpdateRequest,
@@ -81,10 +90,16 @@ export const getNotifiableAPI = () => {
 
   const deleteOrganizationEndpoint = (
     id: string,
+    deleteOrganizationRequest: DeleteOrganizationRequest,
     options?: SecondParameter<typeof serverAxios<boolean>>,
   ) => {
     return serverAxios<boolean>(
-      { url: `/api/api/identity/organizations/${id}`, method: 'DELETE' },
+      {
+        url: `/api/api/identity/organizations/${id}`,
+        method: 'DELETE',
+        headers: { 'Content-Type': '*/*' },
+        data: deleteOrganizationRequest,
+      },
       options,
     );
   };
@@ -110,6 +125,54 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<OrganizationResponse>(
       { url: `/api/api/identity/organizations/me`, method: 'GET' },
+      options,
+    );
+  };
+
+  const createApiKeyEndpoint = (
+    createApiKeyRequest: CreateApiKeyRequest,
+    options?: SecondParameter<typeof serverAxios<CreateApiKeyResponse>>,
+  ) => {
+    return serverAxios<CreateApiKeyResponse>(
+      {
+        url: `/api/api/identity/api-keys`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: createApiKeyRequest,
+      },
+      options,
+    );
+  };
+
+  const listApiKeysEndpoint = (options?: SecondParameter<typeof serverAxios<ApiKeyResponse[]>>) => {
+    return serverAxios<ApiKeyResponse[]>(
+      { url: `/api/api/identity/api-keys`, method: 'GET' },
+      options,
+    );
+  };
+
+  const getApiKeyEndpoint = (
+    id: string,
+    options?: SecondParameter<typeof serverAxios<ApiKeyResponse>>,
+  ) => {
+    return serverAxios<ApiKeyResponse>(
+      { url: `/api/api/identity/api-keys/${id}`, method: 'GET' },
+      options,
+    );
+  };
+
+  const revokeApiKeyEndpoint = (
+    id: string,
+    revokeApiKeyRequest: RevokeApiKeyRequest,
+    options?: SecondParameter<typeof serverAxios<void>>,
+  ) => {
+    return serverAxios<void>(
+      {
+        url: `/api/api/identity/api-keys/${id}`,
+        method: 'DELETE',
+        headers: { 'Content-Type': '*/*' },
+        data: revokeApiKeyRequest,
+      },
       options,
     );
   };
@@ -233,9 +296,18 @@ export const getNotifiableAPI = () => {
 
   const deleteProviderEndpoint = (
     id: string,
+    deleteProviderRequest: DeleteProviderRequest,
     options?: SecondParameter<typeof serverAxios<void>>,
   ) => {
-    return serverAxios<void>({ url: `/api/api/providers/${id}`, method: 'DELETE' }, options);
+    return serverAxios<void>(
+      {
+        url: `/api/api/providers/${id}`,
+        method: 'DELETE',
+        headers: { 'Content-Type': '*/*' },
+        data: deleteProviderRequest,
+      },
+      options,
+    );
   };
 
   const getProviderByIdEndpoint = (
@@ -269,10 +341,16 @@ export const getNotifiableAPI = () => {
    */
   const makeDefaultProviderEndpoint = (
     id: string,
+    makeDefaultProviderRequest: MakeDefaultProviderRequest,
     options?: SecondParameter<typeof serverAxios<void>>,
   ) => {
     return serverAxios<void>(
-      { url: `/api/api/providers/${id}/make-default`, method: 'POST' },
+      {
+        url: `/api/api/providers/${id}/make-default`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: makeDefaultProviderRequest,
+      },
       options,
     );
   };
@@ -326,9 +404,18 @@ export const getNotifiableAPI = () => {
    */
   const deleteChannelEndpoint = (
     id: string,
+    deleteChannelRequest: DeleteChannelRequest,
     options?: SecondParameter<typeof serverAxios<void>>,
   ) => {
-    return serverAxios<void>({ url: `/api/channels/${id}`, method: 'DELETE' }, options);
+    return serverAxios<void>(
+      {
+        url: `/api/channels/${id}`,
+        method: 'DELETE',
+        headers: { 'Content-Type': '*/*' },
+        data: deleteChannelRequest,
+      },
+      options,
+    );
   };
 
   const getChannelByIdEndpoint = (
@@ -382,9 +469,18 @@ export const getNotifiableAPI = () => {
 
   const deleteTemplateEndpoint = (
     id: string,
+    deleteTemplateRequest: DeleteTemplateRequest,
     options?: SecondParameter<typeof serverAxios<void>>,
   ) => {
-    return serverAxios<void>({ url: `/api/templates/${id}`, method: 'DELETE' }, options);
+    return serverAxios<void>(
+      {
+        url: `/api/templates/${id}`,
+        method: 'DELETE',
+        headers: { 'Content-Type': '*/*' },
+        data: deleteTemplateRequest,
+      },
+      options,
+    );
   };
 
   /**
@@ -650,6 +746,10 @@ export const getNotifiableAPI = () => {
     deleteOrganizationEndpoint,
     updateOrganizationEndpoint,
     getMyOrganizationEndpoint,
+    createApiKeyEndpoint,
+    listApiKeysEndpoint,
+    getApiKeyEndpoint,
+    revokeApiKeyEndpoint,
     consumeInternalNotificationEndpoint,
     countInternalNotificationsEndpoint,
     listInternalNotificationsEndpoint,
@@ -704,6 +804,18 @@ export type UpdateOrganizationEndpointResult = NonNullable<
 >;
 export type GetMyOrganizationEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getMyOrganizationEndpoint']>>
+>;
+export type CreateApiKeyEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['createApiKeyEndpoint']>>
+>;
+export type ListApiKeysEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['listApiKeysEndpoint']>>
+>;
+export type GetApiKeyEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getApiKeyEndpoint']>>
+>;
+export type RevokeApiKeyEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['revokeApiKeyEndpoint']>>
 >;
 export type ConsumeInternalNotificationEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['consumeInternalNotificationEndpoint']>>

@@ -7,5 +7,6 @@
  */
 
 export interface DeleteProviderRequest {
-  [key: string]: unknown;
+  /** @nullable */
+  organizationId?: string | null;
 }

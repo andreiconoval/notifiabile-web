@@ -23,6 +23,7 @@ import type {
 
 import type {
   AddAudienceMemberRequest,
+  ApiKeyResponse,
   AudienceCreateRequest,
   AudienceGroupDto,
   ChannelResponse,
@@ -31,11 +32,17 @@ import type {
   ContactUpsertRequest,
   CountInternalNotificationsEndpointParams,
   CountInternalNotificationsResponse,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
   CreateChannelRequest,
   CreateOrganizationRequest,
   CreateProviderRequest,
   DeleteAudienceRequest,
+  DeleteChannelRequest,
   DeleteContactRequest,
+  DeleteOrganizationRequest,
+  DeleteProviderRequest,
+  DeleteTemplateRequest,
   EnqueueNotificationRequest,
   ErrorResponse,
   GetAudienceContactsEndpointParams,
@@ -49,6 +56,7 @@ import type {
   ListContactsResponse,
   ListInternalNotificationsEndpointParams,
   ListProvidersEndpointParams,
+  MakeDefaultProviderRequest,
   NotificationListResponse,
   OrganizationResponse,
   PagedResultOfAudienceGroupDto,
@@ -57,6 +65,7 @@ import type {
   ProviderResponse,
   RemoveAudienceMemberRequest,
   ResolveRequest,
+  RevokeApiKeyRequest,
   TemplateCreateRequest,
   TemplateResponse,
   TemplateUpdateRequest,
@@ -256,8 +265,16 @@ export function useListOrganizationsEndpoint<
   return query;
 }
 
-export const deleteOrganizationEndpoint = (id: string) => {
-  return customAxios<boolean>({ url: `/api/api/identity/organizations/${id}`, method: 'DELETE' });
+export const deleteOrganizationEndpoint = (
+  id: string,
+  deleteOrganizationRequest: DeleteOrganizationRequest,
+) => {
+  return customAxios<boolean>({
+    url: `/api/api/identity/organizations/${id}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': '*/*' },
+    data: deleteOrganizationRequest,
+  });
 };
 
 export const getDeleteOrganizationEndpointMutationOptions = <
@@ -267,13 +284,13 @@ export const getDeleteOrganizationEndpointMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteOrganizationEndpoint>>,
     TError,
-    { id: string },
+    { id: string; data: DeleteOrganizationRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteOrganizationEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteOrganizationRequest },
   TContext
 > => {
   const mutationKey = ['deleteOrganizationEndpoint'];
@@ -285,11 +302,11 @@ export const getDeleteOrganizationEndpointMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteOrganizationEndpoint>>,
-    { id: string }
+    { id: string; data: DeleteOrganizationRequest }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return deleteOrganizationEndpoint(id);
+    return deleteOrganizationEndpoint(id, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -298,7 +315,7 @@ export const getDeleteOrganizationEndpointMutationOptions = <
 export type DeleteOrganizationEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteOrganizationEndpoint>>
 >;
-
+export type DeleteOrganizationEndpointMutationBody = DeleteOrganizationRequest;
 export type DeleteOrganizationEndpointMutationError = void;
 
 export const useDeleteOrganizationEndpoint = <TError = void, TContext = unknown>(
@@ -306,7 +323,7 @@ export const useDeleteOrganizationEndpoint = <TError = void, TContext = unknown>
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteOrganizationEndpoint>>,
       TError,
-      { id: string },
+      { id: string; data: DeleteOrganizationRequest },
       TContext
     >;
   },
@@ -314,7 +331,7 @@ export const useDeleteOrganizationEndpoint = <TError = void, TContext = unknown>
 ): UseMutationResult<
   Awaited<ReturnType<typeof deleteOrganizationEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteOrganizationRequest },
   TContext
 > => {
   const mutationOptions = getDeleteOrganizationEndpointMutationOptions(options);
@@ -507,6 +524,369 @@ export function useGetMyOrganizationEndpoint<
 
   return query;
 }
+
+export const createApiKeyEndpoint = (
+  createApiKeyRequest: CreateApiKeyRequest,
+  signal?: AbortSignal,
+) => {
+  return customAxios<CreateApiKeyResponse>({
+    url: `/api/api/identity/api-keys`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: createApiKeyRequest,
+    signal,
+  });
+};
+
+export const getCreateApiKeyEndpointMutationOptions = <
+  TError = ErrorResponse | void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createApiKeyEndpoint>>,
+    TError,
+    { data: CreateApiKeyRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createApiKeyEndpoint>>,
+  TError,
+  { data: CreateApiKeyRequest },
+  TContext
+> => {
+  const mutationKey = ['createApiKeyEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createApiKeyEndpoint>>,
+    { data: CreateApiKeyRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createApiKeyEndpoint(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateApiKeyEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createApiKeyEndpoint>>
+>;
+export type CreateApiKeyEndpointMutationBody = CreateApiKeyRequest;
+export type CreateApiKeyEndpointMutationError = ErrorResponse | void;
+
+export const useCreateApiKeyEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createApiKeyEndpoint>>,
+      TError,
+      { data: CreateApiKeyRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof createApiKeyEndpoint>>,
+  TError,
+  { data: CreateApiKeyRequest },
+  TContext
+> => {
+  const mutationOptions = getCreateApiKeyEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+export const listApiKeysEndpoint = (signal?: AbortSignal) => {
+  return customAxios<ApiKeyResponse[]>({
+    url: `/api/api/identity/api-keys`,
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getListApiKeysEndpointQueryKey = () => {
+  return [`/api/api/identity/api-keys`] as const;
+};
+
+export const getListApiKeysEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+  TError = void,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof listApiKeysEndpoint>>, TError, TData>>;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListApiKeysEndpointQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listApiKeysEndpoint>>> = ({ signal }) =>
+    listApiKeysEndpoint(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListApiKeysEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listApiKeysEndpoint>>
+>;
+export type ListApiKeysEndpointQueryError = void;
+
+export function useListApiKeysEndpoint<
+  TData = Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+  TError = void,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listApiKeysEndpoint>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof listApiKeysEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useListApiKeysEndpoint<
+  TData = Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+  TError = void,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listApiKeysEndpoint>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof listApiKeysEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useListApiKeysEndpoint<
+  TData = Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+  TError = void,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listApiKeysEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useListApiKeysEndpoint<
+  TData = Awaited<ReturnType<typeof listApiKeysEndpoint>>,
+  TError = void,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listApiKeysEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getListApiKeysEndpointQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getApiKeyEndpoint = (id: string, signal?: AbortSignal) => {
+  return customAxios<ApiKeyResponse>({
+    url: `/api/api/identity/api-keys/${id}`,
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getGetApiKeyEndpointQueryKey = (id?: string) => {
+  return [`/api/api/identity/api-keys/${id}`] as const;
+};
+
+export const getGetApiKeyEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+  TError = void,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKeyEndpoint>>, TError, TData>>;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiKeyEndpointQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiKeyEndpoint>>> = ({ signal }) =>
+    getApiKeyEndpoint(id, signal);
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetApiKeyEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getApiKeyEndpoint>>
+>;
+export type GetApiKeyEndpointQueryError = void;
+
+export function useGetApiKeyEndpoint<
+  TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+  TError = void,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKeyEndpoint>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getApiKeyEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetApiKeyEndpoint<
+  TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+  TError = void,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKeyEndpoint>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getApiKeyEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetApiKeyEndpoint<
+  TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+  TError = void,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKeyEndpoint>>, TError, TData>>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetApiKeyEndpoint<
+  TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
+  TError = void,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiKeyEndpoint>>, TError, TData>>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiKeyEndpointQueryOptions(id, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const revokeApiKeyEndpoint = (id: string, revokeApiKeyRequest: RevokeApiKeyRequest) => {
+  return customAxios<void>({
+    url: `/api/api/identity/api-keys/${id}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': '*/*' },
+    data: revokeApiKeyRequest,
+  });
+};
+
+export const getRevokeApiKeyEndpointMutationOptions = <
+  TError = void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof revokeApiKeyEndpoint>>,
+    TError,
+    { id: string; data: RevokeApiKeyRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof revokeApiKeyEndpoint>>,
+  TError,
+  { id: string; data: RevokeApiKeyRequest },
+  TContext
+> => {
+  const mutationKey = ['revokeApiKeyEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof revokeApiKeyEndpoint>>,
+    { id: string; data: RevokeApiKeyRequest }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return revokeApiKeyEndpoint(id, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RevokeApiKeyEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof revokeApiKeyEndpoint>>
+>;
+export type RevokeApiKeyEndpointMutationBody = RevokeApiKeyRequest;
+export type RevokeApiKeyEndpointMutationError = void;
+
+export const useRevokeApiKeyEndpoint = <TError = void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof revokeApiKeyEndpoint>>,
+      TError,
+      { id: string; data: RevokeApiKeyRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof revokeApiKeyEndpoint>>,
+  TError,
+  { id: string; data: RevokeApiKeyRequest },
+  TContext
+> => {
+  const mutationOptions = getRevokeApiKeyEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
 
 /**
  * Fetch a notification for a user and mark it as read.
@@ -1378,8 +1758,16 @@ export function useListProvidersEndpoint<
   return query;
 }
 
-export const deleteProviderEndpoint = (id: string) => {
-  return customAxios<void>({ url: `/api/api/providers/${id}`, method: 'DELETE' });
+export const deleteProviderEndpoint = (
+  id: string,
+  deleteProviderRequest: DeleteProviderRequest,
+) => {
+  return customAxios<void>({
+    url: `/api/api/providers/${id}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': '*/*' },
+    data: deleteProviderRequest,
+  });
 };
 
 export const getDeleteProviderEndpointMutationOptions = <
@@ -1389,13 +1777,13 @@ export const getDeleteProviderEndpointMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteProviderEndpoint>>,
     TError,
-    { id: string },
+    { id: string; data: DeleteProviderRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteProviderEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteProviderRequest },
   TContext
 > => {
   const mutationKey = ['deleteProviderEndpoint'];
@@ -1407,11 +1795,11 @@ export const getDeleteProviderEndpointMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteProviderEndpoint>>,
-    { id: string }
+    { id: string; data: DeleteProviderRequest }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return deleteProviderEndpoint(id);
+    return deleteProviderEndpoint(id, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -1420,7 +1808,7 @@ export const getDeleteProviderEndpointMutationOptions = <
 export type DeleteProviderEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteProviderEndpoint>>
 >;
-
+export type DeleteProviderEndpointMutationBody = DeleteProviderRequest;
 export type DeleteProviderEndpointMutationError = void;
 
 export const useDeleteProviderEndpoint = <TError = void, TContext = unknown>(
@@ -1428,7 +1816,7 @@ export const useDeleteProviderEndpoint = <TError = void, TContext = unknown>(
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteProviderEndpoint>>,
       TError,
-      { id: string },
+      { id: string; data: DeleteProviderRequest },
       TContext
     >;
   },
@@ -1436,7 +1824,7 @@ export const useDeleteProviderEndpoint = <TError = void, TContext = unknown>(
 ): UseMutationResult<
   Awaited<ReturnType<typeof deleteProviderEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteProviderRequest },
   TContext
 > => {
   const mutationOptions = getDeleteProviderEndpointMutationOptions(options);
@@ -1636,10 +2024,16 @@ export const useUpdateProviderEndpoint = <TError = void, TContext = unknown>(
 /**
  * @summary Make this provider the default for its channel.
  */
-export const makeDefaultProviderEndpoint = (id: string, signal?: AbortSignal) => {
+export const makeDefaultProviderEndpoint = (
+  id: string,
+  makeDefaultProviderRequest: MakeDefaultProviderRequest,
+  signal?: AbortSignal,
+) => {
   return customAxios<void>({
     url: `/api/api/providers/${id}/make-default`,
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: makeDefaultProviderRequest,
     signal,
   });
 };
@@ -1651,13 +2045,13 @@ export const getMakeDefaultProviderEndpointMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof makeDefaultProviderEndpoint>>,
     TError,
-    { id: string },
+    { id: string; data: MakeDefaultProviderRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof makeDefaultProviderEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: MakeDefaultProviderRequest },
   TContext
 > => {
   const mutationKey = ['makeDefaultProviderEndpoint'];
@@ -1669,11 +2063,11 @@ export const getMakeDefaultProviderEndpointMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof makeDefaultProviderEndpoint>>,
-    { id: string }
+    { id: string; data: MakeDefaultProviderRequest }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return makeDefaultProviderEndpoint(id);
+    return makeDefaultProviderEndpoint(id, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -1682,7 +2076,7 @@ export const getMakeDefaultProviderEndpointMutationOptions = <
 export type MakeDefaultProviderEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof makeDefaultProviderEndpoint>>
 >;
-
+export type MakeDefaultProviderEndpointMutationBody = MakeDefaultProviderRequest;
 export type MakeDefaultProviderEndpointMutationError = void;
 
 /**
@@ -1693,7 +2087,7 @@ export const useMakeDefaultProviderEndpoint = <TError = void, TContext = unknown
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof makeDefaultProviderEndpoint>>,
       TError,
-      { id: string },
+      { id: string; data: MakeDefaultProviderRequest },
       TContext
     >;
   },
@@ -1701,7 +2095,7 @@ export const useMakeDefaultProviderEndpoint = <TError = void, TContext = unknown
 ): UseMutationResult<
   Awaited<ReturnType<typeof makeDefaultProviderEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: MakeDefaultProviderRequest },
   TContext
 > => {
   const mutationOptions = getMakeDefaultProviderEndpointMutationOptions(options);
@@ -1987,8 +2381,13 @@ export function useListChannelsEndpoint<
 /**
  * @summary Delete a channel.
  */
-export const deleteChannelEndpoint = (id: string) => {
-  return customAxios<void>({ url: `/api/channels/${id}`, method: 'DELETE' });
+export const deleteChannelEndpoint = (id: string, deleteChannelRequest: DeleteChannelRequest) => {
+  return customAxios<void>({
+    url: `/api/channels/${id}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': '*/*' },
+    data: deleteChannelRequest,
+  });
 };
 
 export const getDeleteChannelEndpointMutationOptions = <
@@ -1998,13 +2397,13 @@ export const getDeleteChannelEndpointMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteChannelEndpoint>>,
     TError,
-    { id: string },
+    { id: string; data: DeleteChannelRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteChannelEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteChannelRequest },
   TContext
 > => {
   const mutationKey = ['deleteChannelEndpoint'];
@@ -2016,11 +2415,11 @@ export const getDeleteChannelEndpointMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteChannelEndpoint>>,
-    { id: string }
+    { id: string; data: DeleteChannelRequest }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return deleteChannelEndpoint(id);
+    return deleteChannelEndpoint(id, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -2029,7 +2428,7 @@ export const getDeleteChannelEndpointMutationOptions = <
 export type DeleteChannelEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteChannelEndpoint>>
 >;
-
+export type DeleteChannelEndpointMutationBody = DeleteChannelRequest;
 export type DeleteChannelEndpointMutationError = void;
 
 /**
@@ -2040,7 +2439,7 @@ export const useDeleteChannelEndpoint = <TError = void, TContext = unknown>(
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteChannelEndpoint>>,
       TError,
-      { id: string },
+      { id: string; data: DeleteChannelRequest },
       TContext
     >;
   },
@@ -2048,7 +2447,7 @@ export const useDeleteChannelEndpoint = <TError = void, TContext = unknown>(
 ): UseMutationResult<
   Awaited<ReturnType<typeof deleteChannelEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteChannelRequest },
   TContext
 > => {
   const mutationOptions = getDeleteChannelEndpointMutationOptions(options);
@@ -2423,8 +2822,16 @@ export function useGetTemplateById<
   return query;
 }
 
-export const deleteTemplateEndpoint = (id: string) => {
-  return customAxios<void>({ url: `/api/templates/${id}`, method: 'DELETE' });
+export const deleteTemplateEndpoint = (
+  id: string,
+  deleteTemplateRequest: DeleteTemplateRequest,
+) => {
+  return customAxios<void>({
+    url: `/api/templates/${id}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': '*/*' },
+    data: deleteTemplateRequest,
+  });
 };
 
 export const getDeleteTemplateEndpointMutationOptions = <
@@ -2434,13 +2841,13 @@ export const getDeleteTemplateEndpointMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteTemplateEndpoint>>,
     TError,
-    { id: string },
+    { id: string; data: DeleteTemplateRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteTemplateEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteTemplateRequest },
   TContext
 > => {
   const mutationKey = ['deleteTemplateEndpoint'];
@@ -2452,11 +2859,11 @@ export const getDeleteTemplateEndpointMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteTemplateEndpoint>>,
-    { id: string }
+    { id: string; data: DeleteTemplateRequest }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return deleteTemplateEndpoint(id);
+    return deleteTemplateEndpoint(id, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -2465,7 +2872,7 @@ export const getDeleteTemplateEndpointMutationOptions = <
 export type DeleteTemplateEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteTemplateEndpoint>>
 >;
-
+export type DeleteTemplateEndpointMutationBody = DeleteTemplateRequest;
 export type DeleteTemplateEndpointMutationError = void;
 
 export const useDeleteTemplateEndpoint = <TError = void, TContext = unknown>(
@@ -2473,7 +2880,7 @@ export const useDeleteTemplateEndpoint = <TError = void, TContext = unknown>(
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteTemplateEndpoint>>,
       TError,
-      { id: string },
+      { id: string; data: DeleteTemplateRequest },
       TContext
     >;
   },
@@ -2481,7 +2888,7 @@ export const useDeleteTemplateEndpoint = <TError = void, TContext = unknown>(
 ): UseMutationResult<
   Awaited<ReturnType<typeof deleteTemplateEndpoint>>,
   TError,
-  { id: string },
+  { id: string; data: DeleteTemplateRequest },
   TContext
 > => {
   const mutationOptions = getDeleteTemplateEndpointMutationOptions(options);

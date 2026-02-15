@@ -19,4 +19,6 @@ export interface TemplateUpdateRequest {
   externalTemplateId?: string | null;
   /** @nullable */
   content?: TemplateUpdateRequestContent;
+  /** @nullable */
+  organizationId?: string | null;
 }
