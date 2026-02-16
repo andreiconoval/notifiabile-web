@@ -4,7 +4,10 @@
       "mcp__ide__getDiagnostics",
       "Bash(npx tsc:*)",
       "Bash(node -e:*)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm list:*)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

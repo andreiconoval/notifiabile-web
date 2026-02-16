@@ -50,7 +50,7 @@ export function SMSFields() {
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="smsText">Email Body (HTML)</Label>
+        <Label htmlFor="smsText">SMS Text</Label>
         <Textarea
           id="smsText"
           name="smsText"

@@ -1,4 +1,4 @@
-import { projectId, publicAnonKey } from './supabase/info';
+import { projectId } from './supabase/info';
 import type {
   Organization,
   Notification,
@@ -20,9 +20,13 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    if (!this.token) {
+      throw new Error('API client has no auth token. Call setToken() before making requests.');
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.token || publicAnonKey}`,
+      Authorization: `Bearer ${this.token}`,
       ...(options.headers as Record<string, string>),
     };
 

@@ -25,7 +25,7 @@ import { toast } from 'sonner';
 
 import { useCreateTemplateEndpoint } from '@/api/generated/notifiable.web';
 import { TemplateCreateRequest, NotificationChannelType } from '@/api/generated/schemas';
-import { EmailFields, InternalFields, PushFields, SMSFields } from './fileds';
+import { EmailFields, InternalFields, PushFields, SMSFields } from './fields';
 
 export default function CreateTemplateDialog({
   onTemplateCreated,
