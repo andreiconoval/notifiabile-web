@@ -14,16 +14,6 @@ export interface UpdateProviderRequest {
   /** @nullable */
   displayName?: string | null;
   /** @nullable */
-  apiKey?: string | null;
-  /** @nullable */
-  secretKey?: string | null;
-  /** @nullable */
-  fromAddress?: string | null;
-  /** @nullable */
-  endpoint?: string | null;
-  /** @nullable */
-  region?: string | null;
-  /** @nullable */
   settings?: UpdateProviderRequestSettings;
   /** @nullable */
   status?: UpdateProviderRequestStatus;

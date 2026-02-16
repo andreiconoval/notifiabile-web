@@ -10,6 +10,7 @@ import type {
   ApiKeyResponse,
   AudienceCreateRequest,
   AudienceGroupDto,
+  AvailableProvidersResponse,
   ChannelResponse,
   ConsumeInternalNotificationRequest,
   ContactRecord,
@@ -45,7 +46,9 @@ import type {
   PagedResultOfAudienceGroupDto,
   PagedResultOfContactRecord,
   PagedResultOfTemplateResponse,
+  ProviderDefinitionResponse,
   ProviderResponse,
+  ProviderType,
   RemoveAudienceMemberRequest,
   ResolveRequest,
   RevokeApiKeyRequest,
@@ -70,7 +73,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<OrganizationResponse>(
       {
-        url: `/api/api/identity/organizations`,
+        url: `/api/identity/organizations`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: createOrganizationRequest,
@@ -83,7 +86,7 @@ export const getNotifiableAPI = () => {
     options?: SecondParameter<typeof serverAxios<OrganizationResponse[]>>,
   ) => {
     return serverAxios<OrganizationResponse[]>(
-      { url: `/api/api/identity/organizations`, method: 'GET' },
+      { url: `/api/identity/organizations`, method: 'GET' },
       options,
     );
   };
@@ -95,7 +98,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<boolean>(
       {
-        url: `/api/api/identity/organizations/${id}`,
+        url: `/api/identity/organizations/${id}`,
         method: 'DELETE',
         headers: { 'Content-Type': '*/*' },
         data: deleteOrganizationRequest,
@@ -111,7 +114,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<OrganizationResponse>(
       {
-        url: `/api/api/identity/organizations/${id}`,
+        url: `/api/identity/organizations/${id}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         data: updateOrganizationRequest,
@@ -124,7 +127,7 @@ export const getNotifiableAPI = () => {
     options?: SecondParameter<typeof serverAxios<OrganizationResponse>>,
   ) => {
     return serverAxios<OrganizationResponse>(
-      { url: `/api/api/identity/organizations/me`, method: 'GET' },
+      { url: `/api/identity/organizations/me`, method: 'GET' },
       options,
     );
   };
@@ -135,7 +138,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<CreateApiKeyResponse>(
       {
-        url: `/api/api/identity/api-keys`,
+        url: `/api/identity/api-keys`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: createApiKeyRequest,
@@ -145,10 +148,7 @@ export const getNotifiableAPI = () => {
   };
 
   const listApiKeysEndpoint = (options?: SecondParameter<typeof serverAxios<ApiKeyResponse[]>>) => {
-    return serverAxios<ApiKeyResponse[]>(
-      { url: `/api/api/identity/api-keys`, method: 'GET' },
-      options,
-    );
+    return serverAxios<ApiKeyResponse[]>({ url: `/api/identity/api-keys`, method: 'GET' }, options);
   };
 
   const getApiKeyEndpoint = (
@@ -156,7 +156,7 @@ export const getNotifiableAPI = () => {
     options?: SecondParameter<typeof serverAxios<ApiKeyResponse>>,
   ) => {
     return serverAxios<ApiKeyResponse>(
-      { url: `/api/api/identity/api-keys/${id}`, method: 'GET' },
+      { url: `/api/identity/api-keys/${id}`, method: 'GET' },
       options,
     );
   };
@@ -168,7 +168,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<void>(
       {
-        url: `/api/api/identity/api-keys/${id}`,
+        url: `/api/identity/api-keys/${id}`,
         method: 'DELETE',
         headers: { 'Content-Type': '*/*' },
         data: revokeApiKeyRequest,
@@ -187,7 +187,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<InternalNotificationDto>(
       {
-        url: `/api/internal-notifications/api/internal-notifications/${id}/consume`,
+        url: `/api/internal-notifications/${id}/consume`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: consumeInternalNotificationRequest,
@@ -204,11 +204,7 @@ export const getNotifiableAPI = () => {
     options?: SecondParameter<typeof serverAxios<CountInternalNotificationsResponse>>,
   ) => {
     return serverAxios<CountInternalNotificationsResponse>(
-      {
-        url: `/api/internal-notifications/api/internal-notifications/count`,
-        method: 'GET',
-        params,
-      },
+      { url: `/api/internal-notifications/count`, method: 'GET', params },
       options,
     );
   };
@@ -221,7 +217,7 @@ export const getNotifiableAPI = () => {
     options?: SecondParameter<typeof serverAxios<InternalNotificationListResponse>>,
   ) => {
     return serverAxios<InternalNotificationListResponse>(
-      { url: `/api/internal-notifications/api/internal-notifications`, method: 'GET', params },
+      { url: `/api/internal-notifications`, method: 'GET', params },
       options,
     );
   };
@@ -275,7 +271,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<ProviderResponse>(
       {
-        url: `/api/api/providers`,
+        url: `/api/providers`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: createProviderRequest,
@@ -289,7 +285,7 @@ export const getNotifiableAPI = () => {
     options?: SecondParameter<typeof serverAxios<ProviderResponse[]>>,
   ) => {
     return serverAxios<ProviderResponse[]>(
-      { url: `/api/api/providers`, method: 'GET', params },
+      { url: `/api/providers`, method: 'GET', params },
       options,
     );
   };
@@ -301,7 +297,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<void>(
       {
-        url: `/api/api/providers/${id}`,
+        url: `/api/providers/${id}`,
         method: 'DELETE',
         headers: { 'Content-Type': '*/*' },
         data: deleteProviderRequest,
@@ -314,10 +310,7 @@ export const getNotifiableAPI = () => {
     id: string,
     options?: SecondParameter<typeof serverAxios<ProviderResponse>>,
   ) => {
-    return serverAxios<ProviderResponse>(
-      { url: `/api/api/providers/${id}`, method: 'GET' },
-      options,
-    );
+    return serverAxios<ProviderResponse>({ url: `/api/providers/${id}`, method: 'GET' }, options);
   };
 
   const updateProviderEndpoint = (
@@ -327,7 +320,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<ProviderResponse>(
       {
-        url: `/api/api/providers/${id}`,
+        url: `/api/providers/${id}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         data: updateProviderRequest,
@@ -346,7 +339,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<void>(
       {
-        url: `/api/api/providers/${id}/make-default`,
+        url: `/api/providers/${id}/make-default`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: makeDefaultProviderRequest,
@@ -365,11 +358,30 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<void>(
       {
-        url: `/api/api/providers/${id}/status`,
+        url: `/api/providers/${id}/status`,
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         data: updateProviderStatusRequest,
       },
+      options,
+    );
+  };
+
+  const getAvailableProvidersEndpoint = (
+    options?: SecondParameter<typeof serverAxios<AvailableProvidersResponse>>,
+  ) => {
+    return serverAxios<AvailableProvidersResponse>(
+      { url: `/api/channels/providers/available`, method: 'GET' },
+      options,
+    );
+  };
+
+  const getProviderSchemaEndpoint = (
+    providerType: ProviderType,
+    options?: SecondParameter<typeof serverAxios<ProviderDefinitionResponse>>,
+  ) => {
+    return serverAxios<ProviderDefinitionResponse>(
+      { url: `/api/channels/providers/available/${providerType}`, method: 'GET' },
       options,
     );
   };
@@ -492,7 +504,7 @@ export const getNotifiableAPI = () => {
   ) => {
     return serverAxios<TemplateResponse>(
       {
-        url: `/api/templates/api/templates/resolve`,
+        url: `/api/templates/resolve`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: resolveRequest,
@@ -763,6 +775,8 @@ export const getNotifiableAPI = () => {
     updateProviderEndpoint,
     makeDefaultProviderEndpoint,
     updateProviderStatusEndpoint,
+    getAvailableProvidersEndpoint,
+    getProviderSchemaEndpoint,
     createChannelEndpoint,
     listChannelsEndpoint,
     deleteChannelEndpoint,
@@ -855,6 +869,12 @@ export type MakeDefaultProviderEndpointResult = NonNullable<
 >;
 export type UpdateProviderStatusEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['updateProviderStatusEndpoint']>>
+>;
+export type GetAvailableProvidersEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getAvailableProvidersEndpoint']>>
+>;
+export type GetProviderSchemaEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getProviderSchemaEndpoint']>>
 >;
 export type CreateChannelEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['createChannelEndpoint']>>

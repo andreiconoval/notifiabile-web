@@ -26,6 +26,7 @@ import type {
   ApiKeyResponse,
   AudienceCreateRequest,
   AudienceGroupDto,
+  AvailableProvidersResponse,
   ChannelResponse,
   ConsumeInternalNotificationRequest,
   ContactRecord,
@@ -62,7 +63,9 @@ import type {
   PagedResultOfAudienceGroupDto,
   PagedResultOfContactRecord,
   PagedResultOfTemplateResponse,
+  ProviderDefinitionResponse,
   ProviderResponse,
+  ProviderType,
   RemoveAudienceMemberRequest,
   ResolveRequest,
   RevokeApiKeyRequest,
@@ -83,7 +86,7 @@ export const createOrganizationEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<OrganizationResponse>({
-    url: `/api/api/identity/organizations`,
+    url: `/api/identity/organizations`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: createOrganizationRequest,
@@ -155,14 +158,14 @@ export const useCreateOrganizationEndpoint = <TError = void, TContext = unknown>
 
 export const listOrganizationsEndpoint = (signal?: AbortSignal) => {
   return customAxios<OrganizationResponse[]>({
-    url: `/api/api/identity/organizations`,
+    url: `/api/identity/organizations`,
     method: 'GET',
     signal,
   });
 };
 
 export const getListOrganizationsEndpointQueryKey = () => {
-  return [`/api/api/identity/organizations`] as const;
+  return [`/api/identity/organizations`] as const;
 };
 
 export const getListOrganizationsEndpointQueryOptions = <
@@ -270,7 +273,7 @@ export const deleteOrganizationEndpoint = (
   deleteOrganizationRequest: DeleteOrganizationRequest,
 ) => {
   return customAxios<boolean>({
-    url: `/api/api/identity/organizations/${id}`,
+    url: `/api/identity/organizations/${id}`,
     method: 'DELETE',
     headers: { 'Content-Type': '*/*' },
     data: deleteOrganizationRequest,
@@ -344,7 +347,7 @@ export const updateOrganizationEndpoint = (
   updateOrganizationRequest: UpdateOrganizationRequest,
 ) => {
   return customAxios<OrganizationResponse>({
-    url: `/api/api/identity/organizations/${id}`,
+    url: `/api/identity/organizations/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     data: updateOrganizationRequest,
@@ -415,14 +418,14 @@ export const useUpdateOrganizationEndpoint = <TError = void, TContext = unknown>
 
 export const getMyOrganizationEndpoint = (signal?: AbortSignal) => {
   return customAxios<OrganizationResponse>({
-    url: `/api/api/identity/organizations/me`,
+    url: `/api/identity/organizations/me`,
     method: 'GET',
     signal,
   });
 };
 
 export const getGetMyOrganizationEndpointQueryKey = () => {
-  return [`/api/api/identity/organizations/me`] as const;
+  return [`/api/identity/organizations/me`] as const;
 };
 
 export const getGetMyOrganizationEndpointQueryOptions = <
@@ -530,7 +533,7 @@ export const createApiKeyEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<CreateApiKeyResponse>({
-    url: `/api/api/identity/api-keys`,
+    url: `/api/identity/api-keys`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: createApiKeyRequest,
@@ -601,15 +604,11 @@ export const useCreateApiKeyEndpoint = <TError = ErrorResponse | void, TContext 
 };
 
 export const listApiKeysEndpoint = (signal?: AbortSignal) => {
-  return customAxios<ApiKeyResponse[]>({
-    url: `/api/api/identity/api-keys`,
-    method: 'GET',
-    signal,
-  });
+  return customAxios<ApiKeyResponse[]>({ url: `/api/identity/api-keys`, method: 'GET', signal });
 };
 
 export const getListApiKeysEndpointQueryKey = () => {
-  return [`/api/api/identity/api-keys`] as const;
+  return [`/api/identity/api-keys`] as const;
 };
 
 export const getListApiKeysEndpointQueryOptions = <
@@ -711,14 +710,14 @@ export function useListApiKeysEndpoint<
 
 export const getApiKeyEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<ApiKeyResponse>({
-    url: `/api/api/identity/api-keys/${id}`,
+    url: `/api/identity/api-keys/${id}`,
     method: 'GET',
     signal,
   });
 };
 
 export const getGetApiKeyEndpointQueryKey = (id?: string) => {
-  return [`/api/api/identity/api-keys/${id}`] as const;
+  return [`/api/identity/api-keys/${id}`] as const;
 };
 
 export const getGetApiKeyEndpointQueryOptions = <
@@ -819,7 +818,7 @@ export function useGetApiKeyEndpoint<
 
 export const revokeApiKeyEndpoint = (id: string, revokeApiKeyRequest: RevokeApiKeyRequest) => {
   return customAxios<void>({
-    url: `/api/api/identity/api-keys/${id}`,
+    url: `/api/identity/api-keys/${id}`,
     method: 'DELETE',
     headers: { 'Content-Type': '*/*' },
     data: revokeApiKeyRequest,
@@ -897,7 +896,7 @@ export const consumeInternalNotificationEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<InternalNotificationDto>({
-    url: `/api/internal-notifications/api/internal-notifications/${id}/consume`,
+    url: `/api/internal-notifications/${id}/consume`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: consumeInternalNotificationRequest,
@@ -975,7 +974,7 @@ export const countInternalNotificationsEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<CountInternalNotificationsResponse>({
-    url: `/api/internal-notifications/api/internal-notifications/count`,
+    url: `/api/internal-notifications/count`,
     method: 'GET',
     params,
     signal,
@@ -985,10 +984,7 @@ export const countInternalNotificationsEndpoint = (
 export const getCountInternalNotificationsEndpointQueryKey = (
   params?: CountInternalNotificationsEndpointParams,
 ) => {
-  return [
-    `/api/internal-notifications/api/internal-notifications/count`,
-    ...(params ? [params] : []),
-  ] as const;
+  return [`/api/internal-notifications/count`, ...(params ? [params] : [])] as const;
 };
 
 export const getCountInternalNotificationsEndpointQueryOptions = <
@@ -1106,7 +1102,7 @@ export const listInternalNotificationsEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<InternalNotificationListResponse>({
-    url: `/api/internal-notifications/api/internal-notifications`,
+    url: `/api/internal-notifications`,
     method: 'GET',
     params,
     signal,
@@ -1116,10 +1112,7 @@ export const listInternalNotificationsEndpoint = (
 export const getListInternalNotificationsEndpointQueryKey = (
   params?: ListInternalNotificationsEndpointParams,
 ) => {
-  return [
-    `/api/internal-notifications/api/internal-notifications`,
-    ...(params ? [params] : []),
-  ] as const;
+  return [`/api/internal-notifications`, ...(params ? [params] : [])] as const;
 };
 
 export const getListInternalNotificationsEndpointQueryOptions = <
@@ -1566,7 +1559,7 @@ export const createProviderEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<ProviderResponse>({
-    url: `/api/api/providers`,
+    url: `/api/providers`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: createProviderRequest,
@@ -1575,7 +1568,7 @@ export const createProviderEndpoint = (
 };
 
 export const getCreateProviderEndpointMutationOptions = <
-  TError = void,
+  TError = ErrorResponse | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1613,9 +1606,9 @@ export type CreateProviderEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof createProviderEndpoint>>
 >;
 export type CreateProviderEndpointMutationBody = CreateProviderRequest;
-export type CreateProviderEndpointMutationError = void;
+export type CreateProviderEndpointMutationError = ErrorResponse | void;
 
-export const useCreateProviderEndpoint = <TError = void, TContext = unknown>(
+export const useCreateProviderEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createProviderEndpoint>>,
@@ -1640,16 +1633,11 @@ export const listProvidersEndpoint = (
   params?: ListProvidersEndpointParams,
   signal?: AbortSignal,
 ) => {
-  return customAxios<ProviderResponse[]>({
-    url: `/api/api/providers`,
-    method: 'GET',
-    params,
-    signal,
-  });
+  return customAxios<ProviderResponse[]>({ url: `/api/providers`, method: 'GET', params, signal });
 };
 
 export const getListProvidersEndpointQueryKey = (params?: ListProvidersEndpointParams) => {
-  return [`/api/api/providers`, ...(params ? [params] : [])] as const;
+  return [`/api/providers`, ...(params ? [params] : [])] as const;
 };
 
 export const getListProvidersEndpointQueryOptions = <
@@ -1763,7 +1751,7 @@ export const deleteProviderEndpoint = (
   deleteProviderRequest: DeleteProviderRequest,
 ) => {
   return customAxios<void>({
-    url: `/api/api/providers/${id}`,
+    url: `/api/providers/${id}`,
     method: 'DELETE',
     headers: { 'Content-Type': '*/*' },
     data: deleteProviderRequest,
@@ -1833,11 +1821,11 @@ export const useDeleteProviderEndpoint = <TError = void, TContext = unknown>(
 };
 
 export const getProviderByIdEndpoint = (id: string, signal?: AbortSignal) => {
-  return customAxios<ProviderResponse>({ url: `/api/api/providers/${id}`, method: 'GET', signal });
+  return customAxios<ProviderResponse>({ url: `/api/providers/${id}`, method: 'GET', signal });
 };
 
 export const getGetProviderByIdEndpointQueryKey = (id?: string) => {
-  return [`/api/api/providers/${id}`] as const;
+  return [`/api/providers/${id}`] as const;
 };
 
 export const getGetProviderByIdEndpointQueryOptions = <
@@ -1952,7 +1940,7 @@ export const updateProviderEndpoint = (
   updateProviderRequest: UpdateProviderRequest,
 ) => {
   return customAxios<ProviderResponse>({
-    url: `/api/api/providers/${id}`,
+    url: `/api/providers/${id}`,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     data: updateProviderRequest,
@@ -2030,7 +2018,7 @@ export const makeDefaultProviderEndpoint = (
   signal?: AbortSignal,
 ) => {
   return customAxios<void>({
-    url: `/api/api/providers/${id}/make-default`,
+    url: `/api/providers/${id}/make-default`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: makeDefaultProviderRequest,
@@ -2111,7 +2099,7 @@ export const updateProviderStatusEndpoint = (
   updateProviderStatusRequest: UpdateProviderStatusRequest,
 ) => {
   return customAxios<void>({
-    url: `/api/api/providers/${id}/status`,
+    url: `/api/providers/${id}/status`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     data: updateProviderStatusRequest,
@@ -2182,6 +2170,237 @@ export const useUpdateProviderStatusEndpoint = <TError = void, TContext = unknow
 
   return useMutation(mutationOptions, queryClient);
 };
+
+export const getAvailableProvidersEndpoint = (signal?: AbortSignal) => {
+  return customAxios<AvailableProvidersResponse>({
+    url: `/api/channels/providers/available`,
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getGetAvailableProvidersEndpointQueryKey = () => {
+  return [`/api/channels/providers/available`] as const;
+};
+
+export const getGetAvailableProvidersEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAvailableProvidersEndpointQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>> = ({
+    signal,
+  }) => getAvailableProvidersEndpoint(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetAvailableProvidersEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>
+>;
+export type GetAvailableProvidersEndpointQueryError = unknown;
+
+export function useGetAvailableProvidersEndpoint<
+  TData = Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetAvailableProvidersEndpoint<
+  TData = Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetAvailableProvidersEndpoint<
+  TData = Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetAvailableProvidersEndpoint<
+  TData = Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetAvailableProvidersEndpointQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getProviderSchemaEndpoint = (providerType: ProviderType, signal?: AbortSignal) => {
+  return customAxios<ProviderDefinitionResponse>({
+    url: `/api/channels/providers/available/${providerType}`,
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getGetProviderSchemaEndpointQueryKey = (providerType?: ProviderType) => {
+  return [`/api/channels/providers/available/${providerType}`] as const;
+};
+
+export const getGetProviderSchemaEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+  TError = unknown,
+>(
+  providerType: ProviderType,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProviderSchemaEndpoint>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetProviderSchemaEndpointQueryKey(providerType);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getProviderSchemaEndpoint>>> = ({
+    signal,
+  }) => getProviderSchemaEndpoint(providerType, signal);
+
+  return { queryKey, queryFn, enabled: !!providerType, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetProviderSchemaEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProviderSchemaEndpoint>>
+>;
+export type GetProviderSchemaEndpointQueryError = unknown;
+
+export function useGetProviderSchemaEndpoint<
+  TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+  TError = unknown,
+>(
+  providerType: ProviderType,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProviderSchemaEndpoint>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getProviderSchemaEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetProviderSchemaEndpoint<
+  TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+  TError = unknown,
+>(
+  providerType: ProviderType,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProviderSchemaEndpoint>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getProviderSchemaEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetProviderSchemaEndpoint<
+  TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+  TError = unknown,
+>(
+  providerType: ProviderType,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProviderSchemaEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetProviderSchemaEndpoint<
+  TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
+  TError = unknown,
+>(
+  providerType: ProviderType,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProviderSchemaEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetProviderSchemaEndpointQueryOptions(providerType, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Create a channel for an organization.
@@ -2901,7 +3120,7 @@ export const useDeleteTemplateEndpoint = <TError = void, TContext = unknown>(
  */
 export const resolveTemplateEndpoint = (resolveRequest: ResolveRequest, signal?: AbortSignal) => {
   return customAxios<TemplateResponse>({
-    url: `/api/templates/api/templates/resolve`,
+    url: `/api/templates/resolve`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: resolveRequest,

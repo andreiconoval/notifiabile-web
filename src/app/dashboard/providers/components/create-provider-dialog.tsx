@@ -1,6 +1,11 @@
-import React, { useMemo, useState } from 'react';
+'use client';
+
+import React, { useCallback, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,40 +17,32 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useQueryClient } from '@tanstack/react-query';
-import {
-  CreateProviderRequest,
-  NotificationChannelType,
-  ProviderType,
-} from '@/api/generated/schemas';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import {
   getListProvidersEndpointQueryKey,
   useCreateProviderEndpoint,
 } from '@/api/generated/notifiable.web';
+import type {
+  CreateProviderRequest,
+  ErrorResponse,
+  NotificationChannelType,
+  ProviderDefinitionResponse,
+  ProviderType,
+} from '@/api/generated/schemas';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAvailableProviders } from '../hooks/use-available-providers';
+import { buildSettingsSchema, ProviderSettingsForm } from './provider-settings-form';
 
-const providerLabels: Record<ProviderType, string> = {
-  [ProviderType.Mailjet]: 'Mailjet',
-  [ProviderType.SendGrid]: 'SendGrid',
-  [ProviderType.FCM]: 'FCM (Firebase)',
-  [ProviderType.APNs]: 'APNs (Apple)',
-  [ProviderType.Twilio]: 'Twilio',
-  [ProviderType.OneSignal]: 'OneSignal',
-};
-
-const channelLabels: Record<NotificationChannelType, string> = {
-  [NotificationChannelType.Email]: 'Email',
-  [NotificationChannelType.Sms]: 'SMS',
-  [NotificationChannelType.Push]: 'Push',
-  [NotificationChannelType.Internal]: 'Internal',
-};
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type CreateProviderDialogProps = {
   open: boolean;
@@ -55,6 +52,10 @@ type CreateProviderDialogProps = {
   trigger?: React.ReactNode;
 };
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function CreateProviderDialog({
   open,
   onOpenChange,
@@ -63,98 +64,93 @@ export function CreateProviderDialog({
   trigger,
 }: CreateProviderDialogProps) {
   const queryClient = useQueryClient();
-  const [selectedType, setSelectedType] = useState<ProviderType>(ProviderType.Mailjet);
-  const [channelType, setChannelType] = useState<NotificationChannelType>(
-    NotificationChannelType.Email,
-  );
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  const { channels, isLoading: discoveryLoading, getChannelForProvider } = useAvailableProviders();
   const { mutateAsync: createProvider } = useCreateProviderEndpoint();
 
-  const placeholder = useMemo(() => providerLabels[selectedType] ?? 'Provider', [selectedType]);
+  const [selectedProvider, setSelectedProvider] = useState<ProviderDefinitionResponse | null>(null);
+  const [selectedProviderType, setSelectedProviderType] = useState<ProviderType | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<NotificationChannelType | null>(null);
 
-  const handleSettingChange = (key: string, value: string) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const addSetting = () => {
-    const newKey = `key_${Object.keys(settings).length + 1}`;
-    setSettings((prev) => ({ ...prev, [newKey]: '' }));
-  };
-  const removeSetting = (key: string) => {
-    setSettings((prev) => {
-      const { [key]: _, ...rest } = prev;
-      return rest;
+  // Build Zod schema dynamically for the selected provider
+  const schema = useMemo(() => {
+    const settingsSchema = selectedProvider?.settings
+      ? buildSettingsSchema(selectedProvider.settings)
+      : z.record(z.string(), z.string().optional());
+    return z.object({
+      displayName: z.string().optional(),
+      settings: settingsSchema,
     });
-  };
+  }, [selectedProvider]);
 
-  const renderChannelFields = () => {
-    switch (channelType) {
-      case NotificationChannelType.Email:
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="fromAddress">From Address</Label>
-            <Input id="fromAddress" name="fromAddress" placeholder="notifications@yourdomain.com" />
-          </div>
-        );
-      case NotificationChannelType.Push:
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="endpoint">Endpoint</Label>
-              <Input id="endpoint" name="endpoint" placeholder="https://fcm.googleapis.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="region">Region</Label>
-              <Input id="region" name="region" placeholder="us-east-1" />
-            </div>
-          </>
-        );
-      case NotificationChannelType.Sms:
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="fromAddress">Sender (number or ID)</Label>
-            <Input id="fromAddress" name="fromAddress" placeholder="+15551234567 or MY-APP" />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  const form = useForm({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema) as any,
+    defaultValues: {
+      displayName: '',
+      settings: {} as Record<string, string>,
+    },
+  });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  // Reset state when dialog opens/closes
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        setSelectedProvider(null);
+        setSelectedProviderType(null);
+        setSelectedChannel(null);
+        form.reset({ displayName: '', settings: {} });
+      }
+      onOpenChange(nextOpen);
+    },
+    [onOpenChange, form],
+  );
+
+  // When user picks a provider from the picker
+  const handleSelectProvider = useCallback(
+    (provider: ProviderDefinitionResponse) => {
+      if (!provider.type) return;
+
+      const channel = getChannelForProvider(provider.type);
+      setSelectedProvider(provider);
+      setSelectedProviderType(provider.type);
+      setSelectedChannel((channel?.channelType as NotificationChannelType) ?? null);
+
+      // Build default values from the provider schema
+      const defaults: Record<string, string> = {};
+      for (const s of provider.settings ?? []) {
+        if (s.key) {
+          defaults[s.key] = s.defaultValue ?? '';
+        }
+      }
+      form.reset({
+        displayName: provider.displayName ?? '',
+        settings: defaults,
+      });
+    },
+    [getChannelForProvider, form],
+  );
+
+  const handleBack = useCallback(() => {
+    setSelectedProvider(null);
+    setSelectedProviderType(null);
+    setSelectedChannel(null);
+    form.reset({ displayName: '', settings: {} });
+  }, [form]);
+
+  async function onSubmit(values: Record<string, unknown>) {
     if (!orgId) {
       toast.error('No organization selected');
       return;
     }
-
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const type = formData.get('type') as ProviderType;
-    const selectedChannel = (formData.get('channelType') as NotificationChannelType) ?? channelType;
-    const apiKey = formData.get('apiKey') as string;
-    const apiSecret = formData.get('apiSecret') as string;
-    const fromAddress = formData.get('fromAddress') as string;
-    const endpoint = formData.get('endpoint') as string;
-    const region = formData.get('region') as string;
+    if (!selectedProviderType || !selectedChannel) return;
 
     try {
       const payload: CreateProviderRequest = {
+        organizationId: orgId,
         channelType: selectedChannel,
-        type,
-        displayName: name,
-        apiKey: apiKey || null,
-        secretKey: apiSecret || null,
-        fromAddress: fromAddress || null,
-        endpoint: endpoint || null,
-        region: region || null,
-        settings:
-          Object.keys(settings).length > 0
-            ? Object.entries(settings).reduce<Record<string, string | null>>((acc, [k, v]) => {
-                acc[k] = v || null;
-                return acc;
-              }, {})
-            : undefined,
+        type: selectedProviderType,
+        displayName: (values.displayName as string) || undefined,
+        settings: values.settings as Record<string, string | null>,
       };
 
       await createProvider({ data: payload });
@@ -162,146 +158,144 @@ export function CreateProviderDialog({
         queryKey: getListProvidersEndpointQueryKey(),
       });
       toast.success('Provider configured successfully');
-      onOpenChange(false);
+      handleOpenChange(false);
       onProviderCreated();
-    } catch (error) {
-      console.error('Failed to create provider:', error);
-      toast.error('Failed to configure provider');
+    } catch (err: unknown) {
+      const error = err as ErrorResponse | undefined;
+      if (error?.errors) {
+        for (const [key, messages] of Object.entries(error.errors)) {
+          const message = messages?.[0] ?? 'Invalid value';
+          form.setError(`settings.${key}`, { message });
+        }
+      } else {
+        toast.error(error?.message ?? 'Failed to configure provider');
+      }
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Configure Provider</DialogTitle>
-          <DialogDescription>Add a new notification delivery provider</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Provider Type</Label>
-              <Select
-                name="type"
-                defaultValue={ProviderType.Mailjet}
-                onValueChange={(value) => setSelectedType(value as ProviderType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(ProviderType).map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {providerLabels[value as ProviderType]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-gray-500">Example: {providerLabels[selectedType]}</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="channelType">Channel</Label>
-              <Select
-                name="channelType"
-                defaultValue={NotificationChannelType.Email}
-                onValueChange={(value) => setChannelType(value as NotificationChannelType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(NotificationChannelType).map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {channelLabels[value as NotificationChannelType]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Provider Name</Label>
-              <Input id="name" name="name" placeholder={placeholder} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="apiKey">API Key</Label>
-              <Input
-                id="apiKey"
-                name="apiKey"
-                type="password"
-                placeholder="Enter your API key"
-                required
-              />
-            </div>
-            {renderChannelFields()}
-            <div className="space-y-2">
-              <Label htmlFor="apiSecret">API Secret</Label>
-              <Input
-                id="apiSecret"
-                name="apiSecret"
-                type="password"
-                placeholder="Enter your API secret (if applicable)"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Settings</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addSetting}>
-                  Add Setting
-                </Button>
+        {!selectedProvider ? (
+          // ------- Step 1: Provider Picker -------
+          <>
+            <DialogHeader>
+              <DialogTitle>Add Provider</DialogTitle>
+              <DialogDescription>Choose a notification delivery provider</DialogDescription>
+            </DialogHeader>
+
+            {discoveryLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
-              <div className="space-y-2">
-                {Object.entries(settings).map(([key, value]) => (
-                  <div key={key} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-                    <Input
-                      value={key}
-                      onChange={(e) => {
-                        const newKey = e.target.value;
-                        setSettings((prev) => {
-                          const { [key]: _, ...rest } = prev;
-                          return { ...rest, [newKey]: value };
-                        });
-                      }}
-                      placeholder="Key"
-                    />
-                    <Input
-                      value={value}
-                      onChange={(e) => handleSettingChange(key, e.target.value)}
-                      placeholder="Value"
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => removeSetting(key)}
-                      aria-label={`Remove ${key}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+            ) : (
+              <div className="space-y-6 py-4">
+                {channels.map((channel) => (
+                  <div key={channel.channelType}>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                      {channel.displayName}
+                    </h3>
+                    <div className="grid gap-2">
+                      {(channel.providers ?? []).map((provider) => (
+                        <button
+                          key={provider.type}
+                          type="button"
+                          className="flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors hover:bg-accent"
+                          onClick={() => handleSelectProvider(provider)}
+                        >
+                          <span className="font-medium">{provider.displayName}</span>
+                          {provider.description && (
+                            <span className="text-sm text-muted-foreground">
+                              {provider.description}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ))}
-                {Object.keys(settings).length === 0 && (
-                  <p className="text-xs text-gray-500">No settings added yet.</p>
+                {channels.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No providers available.
+                  </p>
                 )}
               </div>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-900">
-                Your API credentials are encrypted and stored securely.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              <Plus className="h-4 w-4 mr-2" />
-              Configure Provider
-            </Button>
-          </DialogFooter>
-        </form>
+            )}
+          </>
+        ) : (
+          // ------- Step 2: Configure Settings -------
+          <>
+            <DialogHeader>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleBack}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <DialogTitle>Configure {selectedProvider.displayName}</DialogTitle>
+                  <DialogDescription>
+                    {selectedProvider.description ?? 'Enter provider settings'}
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="space-y-4 py-4">
+                  <FormField
+                    control={form.control}
+                    name="displayName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Display Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={selectedProvider.displayName ?? 'Provider name'}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <ProviderSettingsForm settings={selectedProvider.settings ?? []} />
+
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-950">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      Your API credentials are encrypted and stored securely.
+                    </p>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleOpenChange(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Plus className="h-4 w-4 mr-2" />
+                    )}
+                    Configure Provider
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

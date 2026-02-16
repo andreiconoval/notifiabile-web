@@ -20,12 +20,6 @@ export interface ProviderResponse {
   isDefault?: boolean;
   /** @nullable */
   displayName?: string | null;
-  /** @nullable */
-  fromAddress?: string | null;
-  /** @nullable */
-  endpoint?: string | null;
-  /** @nullable */
-  region?: string | null;
   settings?: ProviderResponseSettings;
   createdAt?: string;
   createdBy?: string;

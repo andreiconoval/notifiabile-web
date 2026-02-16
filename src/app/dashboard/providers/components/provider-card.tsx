@@ -3,14 +3,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, LucideIcon, Mail, MessageSquare, Settings, Smartphone, Star } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   getListProvidersEndpointQueryKey,
   useMakeDefaultProviderEndpoint,
 } from '@/api/generated/notifiable.web';
-import { ProviderStatus } from '@/api/generated/schemas';
+import { NotificationChannelType, ProviderStatus } from '@/api/generated/schemas';
 import type { Provider } from '../types';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAvailableProviders } from '../hooks/use-available-providers';
 import { UpdateProviderDialog } from './update-provider-dialog';
 
+// Icon per provider type — falls back to channel-based icon
 const providerIconMap: Record<string, LucideIcon> = {
   mailjet: Mail,
   sendGrid: Mail,
@@ -18,6 +22,12 @@ const providerIconMap: Record<string, LucideIcon> = {
   apNs: Smartphone,
   oneSignal: Globe,
   twilio: MessageSquare,
+};
+
+const channelIconMap: Record<string, LucideIcon> = {
+  [NotificationChannelType.Email]: Mail,
+  [NotificationChannelType.Push]: Smartphone,
+  [NotificationChannelType.Sms]: MessageSquare,
 };
 
 const statusColorMap: Record<ProviderStatus, string> = {
@@ -28,19 +38,30 @@ const statusColorMap: Record<ProviderStatus, string> = {
 };
 
 export function ProviderCard({ provider }: { provider: Provider }) {
-  const iconKey = provider.type ?? 'mailjet';
-  const Icon = providerIconMap[iconKey] ?? Globe;
-  const statusColor = statusColorMap[provider.status ?? 'inactive'];
+  const { selectedOrg } = useAuth();
+  const { getProvider, getChannelForProvider } = useAvailableProviders();
   const queryClient = useQueryClient();
   const { mutateAsync: makeDefault } = useMakeDefaultProviderEndpoint();
+
+  const providerDef = provider.type ? getProvider(provider.type) : undefined;
+  const channelDef = provider.type ? getChannelForProvider(provider.type) : undefined;
+
+  // Resolve icon: provider-specific → channel-based → Globe fallback
+  const Icon =
+    providerIconMap[provider.type ?? ''] ??
+    channelIconMap[channelDef?.channelType ?? ''] ??
+    Globe;
+
+  const statusColor = statusColorMap[provider.status ?? 'inactive'];
 
   const handleMakeDefault = async () => {
     if (!provider.id) return;
     try {
-      await makeDefault({ id: provider.id });
+      await makeDefault({ id: provider.id, data: { organizationId: selectedOrg?.id } });
       await queryClient.invalidateQueries({ queryKey: getListProvidersEndpointQueryKey() });
     } catch (err) {
       console.error('Failed to set default provider:', err);
+      toast.error('Failed to set default provider');
     }
   };
 
@@ -57,8 +78,12 @@ export function ProviderCard({ provider }: { provider: Provider }) {
               <Icon className="h-5 w-5 text-indigo-700" />
             </div>
             <div>
-              <CardTitle className="text-lg">{provider.displayName}</CardTitle>
-              <CardDescription className="capitalize">{provider.type}</CardDescription>
+              <CardTitle className="text-lg">
+                {provider.displayName ?? providerDef?.displayName}
+              </CardTitle>
+              <CardDescription>
+                {channelDef?.displayName ?? provider.channelType}
+              </CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2">

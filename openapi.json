@@ -12,8 +12,11 @@
     }
   ],
   "paths": {
-    "/api/api/identity/organizations": {
+    "/api/identity/organizations": {
       "post": {
+        "tags": [
+          "Organizations"
+        ],
         "operationId": "CreateOrganizationEndpoint",
         "parameters": [
           {
@@ -61,6 +64,9 @@
         ]
       },
       "get": {
+        "tags": [
+          "Organizations"
+        ],
         "operationId": "ListOrganizationsEndpoint",
         "responses": {
           "200": {
@@ -87,8 +93,11 @@
         ]
       }
     },
-    "/api/api/identity/organizations/{id}": {
+    "/api/identity/organizations/{id}": {
       "delete": {
+        "tags": [
+          "Organizations"
+        ],
         "operationId": "DeleteOrganizationEndpoint",
         "parameters": [
           {
@@ -150,6 +159,9 @@
         ]
       },
       "put": {
+        "tags": [
+          "Organizations"
+        ],
         "operationId": "UpdateOrganizationEndpoint",
         "parameters": [
           {
@@ -206,8 +218,11 @@
         ]
       }
     },
-    "/api/api/identity/organizations/me": {
+    "/api/identity/organizations/me": {
       "get": {
+        "tags": [
+          "Organizations"
+        ],
         "operationId": "GetMyOrganizationEndpoint",
         "parameters": [
           {
@@ -242,8 +257,11 @@
         ]
       }
     },
-    "/api/api/identity/api-keys": {
+    "/api/identity/api-keys": {
       "post": {
+        "tags": [
+          "Api Keys"
+        ],
         "operationId": "CreateApiKeyEndpoint",
         "parameters": [
           {
@@ -301,6 +319,9 @@
         ]
       },
       "get": {
+        "tags": [
+          "Api Keys"
+        ],
         "operationId": "ListApiKeysEndpoint",
         "parameters": [
           {
@@ -338,8 +359,11 @@
         ]
       }
     },
-    "/api/api/identity/api-keys/{id}": {
+    "/api/identity/api-keys/{id}": {
       "get": {
+        "tags": [
+          "Api Keys"
+        ],
         "operationId": "GetApiKeyEndpoint",
         "parameters": [
           {
@@ -383,6 +407,9 @@
         ]
       },
       "delete": {
+        "tags": [
+          "Api Keys"
+        ],
         "operationId": "RevokeApiKeyEndpoint",
         "parameters": [
           {
@@ -437,7 +464,7 @@
         ]
       }
     },
-    "/api/internal-notifications/api/internal-notifications/{id}/consume": {
+    "/api/internal-notifications/{id}/consume": {
       "post": {
         "description": "Fetch a notification for a user and mark it as read.",
         "operationId": "ConsumeInternalNotificationEndpoint",
@@ -496,7 +523,7 @@
         ]
       }
     },
-    "/api/internal-notifications/api/internal-notifications/count": {
+    "/api/internal-notifications/count": {
       "get": {
         "description": "Count unread internal notifications for a user.",
         "operationId": "CountInternalNotificationsEndpoint",
@@ -558,7 +585,7 @@
         ]
       }
     },
-    "/api/internal-notifications/api/internal-notifications": {
+    "/api/internal-notifications": {
       "get": {
         "description": "List internal notifications for a user.",
         "operationId": "ListInternalNotificationsEndpoint",
@@ -851,8 +878,11 @@
         ]
       }
     },
-    "/api/api/providers": {
+    "/api/providers": {
       "post": {
+        "tags": [
+          "Providers"
+        ],
         "operationId": "CreateProviderEndpoint",
         "parameters": [
           {
@@ -889,6 +919,16 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized"
           }
@@ -900,6 +940,9 @@
         ]
       },
       "get": {
+        "tags": [
+          "Providers"
+        ],
         "operationId": "ListProvidersEndpoint",
         "parameters": [
           {
@@ -981,8 +1024,11 @@
         ]
       }
     },
-    "/api/api/providers/{id}": {
+    "/api/providers/{id}": {
       "delete": {
+        "tags": [
+          "Providers"
+        ],
         "operationId": "DeleteProviderEndpoint",
         "parameters": [
           {
@@ -1037,6 +1083,9 @@
         ]
       },
       "get": {
+        "tags": [
+          "Providers"
+        ],
         "operationId": "GetProviderByIdEndpoint",
         "parameters": [
           {
@@ -1080,6 +1129,9 @@
         ]
       },
       "put": {
+        "tags": [
+          "Providers"
+        ],
         "operationId": "UpdateProviderEndpoint",
         "parameters": [
           {
@@ -1136,8 +1188,11 @@
         ]
       }
     },
-    "/api/api/providers/{id}/make-default": {
+    "/api/providers/{id}/make-default": {
       "post": {
+        "tags": [
+          "Providers"
+        ],
         "summary": "Make this provider the default for its channel.",
         "operationId": "MakeDefaultProviderEndpoint",
         "parameters": [
@@ -1188,8 +1243,11 @@
         ]
       }
     },
-    "/api/api/providers/{id}/status": {
+    "/api/providers/{id}/status": {
       "patch": {
+        "tags": [
+          "Providers"
+        ],
         "summary": "Update provider operational status.",
         "operationId": "UpdateProviderStatusEndpoint",
         "parameters": [
@@ -1238,6 +1296,54 @@
             "JWTBearerAuth": []
           }
         ]
+      }
+    },
+    "/api/channels/providers/available": {
+      "get": {
+        "operationId": "GetAvailableProvidersEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailableProvidersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/channels/providers/available/{providerType}": {
+      "get": {
+        "operationId": "GetProviderSchemaEndpoint",
+        "parameters": [
+          {
+            "name": "providerType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ProviderType"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDefinitionResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/channels": {
@@ -1683,7 +1789,7 @@
         ]
       }
     },
-    "/api/templates/api/templates/resolve": {
+    "/api/templates/resolve": {
       "post": {
         "tags": [
           "Templates"
@@ -3325,18 +3431,6 @@
             "type": "string",
             "nullable": true
           },
-          "fromAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "endpoint": {
-            "type": "string",
-            "nullable": true
-          },
-          "region": {
-            "type": "string",
-            "nullable": true
-          },
           "settings": {
             "type": "object",
             "additionalProperties": {
@@ -3445,26 +3539,6 @@
             "type": "string",
             "nullable": true
           },
-          "apiKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "secretKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "fromAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "endpoint": {
-            "type": "string",
-            "nullable": true
-          },
-          "region": {
-            "type": "string",
-            "nullable": true
-          },
           "settings": {
             "type": "object",
             "nullable": true,
@@ -3542,26 +3616,6 @@
             "type": "string",
             "nullable": true
           },
-          "apiKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "secretKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "fromAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "endpoint": {
-            "type": "string",
-            "nullable": true
-          },
-          "region": {
-            "type": "string",
-            "nullable": true
-          },
           "settings": {
             "type": "object",
             "nullable": true,
@@ -3604,6 +3658,113 @@
             "$ref": "#/components/schemas/ProviderStatus"
           }
         }
+      },
+      "AvailableProvidersResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelDefinitionResponse"
+            }
+          }
+        }
+      },
+      "ChannelDefinitionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "channelType": {
+            "$ref": "#/components/schemas/NotificationChannelType"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderDefinitionResponse"
+            }
+          }
+        }
+      },
+      "ProviderDefinitionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ProviderType"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderSettingDefinitionResponse"
+            }
+          }
+        }
+      },
+      "ProviderSettingDefinitionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "fieldType": {
+            "$ref": "#/components/schemas/SettingFieldType"
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultValue": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SettingFieldType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Text",
+          "Secret",
+          "Email",
+          "Url",
+          "Json",
+          "Number",
+          "Boolean"
+        ],
+        "enum": [
+          "text",
+          "secret",
+          "email",
+          "url",
+          "json",
+          "number",
+          "boolean"
+        ]
+      },
+      "GetProviderSchemaRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "ChannelResponse": {
         "type": "object",

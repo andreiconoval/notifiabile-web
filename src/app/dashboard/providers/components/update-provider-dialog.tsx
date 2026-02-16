@@ -1,6 +1,11 @@
+'use client';
+
 import React, { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { toast } from 'sonner';
-import { Save, Trash2 } from 'lucide-react';
+import { Loader2, Save, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,19 +17,18 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  NotificationChannelType,
+import type {
+  ErrorResponse,
   ProviderResponse,
-  ProviderType,
   UpdateProviderRequest,
 } from '@/api/generated/schemas';
 import {
@@ -32,22 +36,13 @@ import {
   useDeleteProviderEndpoint,
   useUpdateProviderEndpoint,
 } from '@/api/generated/notifiable.web';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAvailableProviders } from '../hooks/use-available-providers';
+import { buildUpdateSettingsSchema, ProviderSettingsForm } from './provider-settings-form';
 
-const providerLabels: Record<ProviderType, string> = {
-  [ProviderType.Mailjet]: 'Mailjet',
-  [ProviderType.SendGrid]: 'SendGrid',
-  [ProviderType.FCM]: 'FCM (Firebase)',
-  [ProviderType.APNs]: 'APNs (Apple)',
-  [ProviderType.Twilio]: 'Twilio',
-  [ProviderType.OneSignal]: 'OneSignal',
-};
-
-const channelLabels: Record<NotificationChannelType, string> = {
-  [NotificationChannelType.Email]: 'Email',
-  [NotificationChannelType.Sms]: 'SMS',
-  [NotificationChannelType.Push]: 'Push',
-  [NotificationChannelType.Internal]: 'Internal',
-};
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type UpdateProviderDialogProps = {
   provider: ProviderResponse;
@@ -56,6 +51,10 @@ type UpdateProviderDialogProps = {
   trigger?: React.ReactNode;
 };
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function UpdateProviderDialog({
   provider,
   open,
@@ -63,153 +62,103 @@ export function UpdateProviderDialog({
   trigger,
 }: UpdateProviderDialogProps) {
   const queryClient = useQueryClient();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<ProviderType>(
-    (provider.type as ProviderType) ?? ProviderType.Mailjet,
-  );
-  const [channelType, setChannelType] = useState<NotificationChannelType>(
-    (provider.channelType as NotificationChannelType) ?? NotificationChannelType.Email,
-  );
+  const { selectedOrg } = useAuth();
+  const { getProvider, getChannelForProvider } = useAvailableProviders();
   const { mutateAsync: updateProvider } = useUpdateProviderEndpoint();
   const { mutateAsync: deleteProvider } = useDeleteProviderEndpoint();
-  const [settings, setSettings] = useState<Record<string, string>>(
-    provider.settings
-      ? Object.entries(provider.settings).reduce<Record<string, string>>((acc, [k, v]) => {
-          acc[k] = v ?? '';
-          return acc;
-        }, {})
-      : {},
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const providerDef = provider.type ? getProvider(provider.type) : undefined;
+  const channelDef = provider.type ? getChannelForProvider(provider.type) : undefined;
+  const settingsDef = providerDef?.settings ?? [];
+
+  const existingSettings = useMemo<Record<string, string | null>>(
+    () => (provider.settings as Record<string, string | null>) ?? {},
+    [provider.settings],
   );
 
-  const placeholder = useMemo(
-    () => provider.displayName ?? providerLabels[selectedType] ?? 'Provider',
-    [provider.displayName, selectedType],
-  );
-
-  const handleSettingChange = (key: string, value: string) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const addSetting = () => {
-    const newKey = `key_${Object.keys(settings).length + 1}`;
-    setSettings((prev) => ({ ...prev, [newKey]: '' }));
-  };
-  const removeSetting = (key: string) => {
-    setSettings((prev) => {
-      const { [key]: _, ...rest } = prev;
-      return rest;
+  // Build Zod schema — required fields with existing values become optional
+  const schema = useMemo(() => {
+    const settingsSchema = settingsDef.length > 0
+      ? buildUpdateSettingsSchema(settingsDef, existingSettings)
+      : z.record(z.string(), z.string().optional());
+    return z.object({
+      displayName: z.string().optional(),
+      settings: settingsSchema,
     });
-  };
+  }, [settingsDef, existingSettings]);
 
-  const renderChannelFields = () => {
-    switch (channelType) {
-      case NotificationChannelType.Email:
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="fromAddress">From Address</Label>
-            <Input
-              id="fromAddress"
-              name="fromAddress"
-              placeholder="notifications@yourdomain.com"
-              defaultValue={provider.fromAddress ?? ''}
-            />
-          </div>
-        );
-      case NotificationChannelType.Push:
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="endpoint">Endpoint</Label>
-              <Input
-                id="endpoint"
-                name="endpoint"
-                placeholder="https://fcm.googleapis.com"
-                defaultValue={provider.endpoint ?? ''}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="region">Region</Label>
-              <Input
-                id="region"
-                name="region"
-                placeholder="us-east-1"
-                defaultValue={provider.region ?? ''}
-              />
-            </div>
-          </>
-        );
-      case NotificationChannelType.Sms:
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="fromAddress">Sender (number or ID)</Label>
-            <Input
-              id="fromAddress"
-              name="fromAddress"
-              placeholder="+15551234567 or MY-APP"
-              defaultValue={provider.fromAddress ?? ''}
-            />
-          </div>
-        );
-      default:
-        return null;
+  // Build initial form values from existing settings
+  const defaultValues = useMemo(() => {
+    const settings: Record<string, string> = {};
+    for (const s of settingsDef) {
+      if (s.key) {
+        settings[s.key] = existingSettings[s.key] ?? s.defaultValue ?? '';
+      }
     }
-  };
+    return {
+      displayName: provider.displayName ?? '',
+      settings,
+    };
+  }, [settingsDef, existingSettings, provider.displayName]);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!provider.id) return;
-
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const type = formData.get('type') as ProviderType;
-    const selectedChannel = (formData.get('channelType') as NotificationChannelType) ?? channelType;
-    const apiKey = formData.get('apiKey') as string;
-    const apiSecret = formData.get('apiSecret') as string;
-    const fromAddress = formData.get('fromAddress') as string;
-    const endpoint = formData.get('endpoint') as string;
-    const region = formData.get('region') as string;
-
-    try {
-      const payload: UpdateProviderRequest = {
-        displayName: name,
-        apiKey: apiKey || null,
-        secretKey: apiSecret || null,
-        fromAddress: fromAddress || null,
-        endpoint: endpoint || null,
-        region: region || null,
-        // channel/type are immutable in this API; if needed, include settings
-        settings:
-          Object.keys(settings).length > 0
-            ? Object.entries(settings).reduce<Record<string, string | null>>((acc, [k, v]) => {
-                acc[k] = v || null;
-                return acc;
-              }, {})
-            : undefined,
-      };
-
-      await updateProvider({ id: provider.id, data: payload });
-      await queryClient.invalidateQueries({ queryKey: getListProvidersEndpointQueryKey() });
-      toast.success('Provider updated successfully');
-      (onOpenChange ?? setDialogOpen)(false);
-    } catch (err) {
-      console.error('Failed to update provider:', err);
-      toast.error('Failed to update provider');
-    }
-  }
+  const form = useForm({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema) as any,
+    defaultValues,
+  });
 
   const dialogProps =
     onOpenChange !== undefined
       ? { open, onOpenChange }
       : { open: dialogOpen, onOpenChange: setDialogOpen };
 
+  const closeDialog = () => (onOpenChange ?? setDialogOpen)(false);
+
+  async function onSubmit(values: Record<string, unknown>) {
+    if (!provider.id) return;
+
+    // Only send settings that were filled in (skip empty strings for secrets)
+    const rawSettings = (values.settings ?? {}) as Record<string, string>;
+    const cleanedSettings: Record<string, string | null> = {};
+    for (const [key, value] of Object.entries(rawSettings)) {
+      if (value !== undefined && value !== '') {
+        cleanedSettings[key] = value;
+      }
+    }
+
+    try {
+      const payload: UpdateProviderRequest = {
+        organizationId: selectedOrg?.id,
+        displayName: (values.displayName as string) || undefined,
+        settings: Object.keys(cleanedSettings).length > 0 ? cleanedSettings : undefined,
+      };
+
+      await updateProvider({ id: provider.id, data: payload });
+      await queryClient.invalidateQueries({ queryKey: getListProvidersEndpointQueryKey() });
+      toast.success('Provider updated successfully');
+      closeDialog();
+    } catch (err: unknown) {
+      const error = err as ErrorResponse | undefined;
+      if (error?.errors) {
+        for (const [key, messages] of Object.entries(error.errors)) {
+          const message = messages?.[0] ?? 'Invalid value';
+          form.setError(`settings.${key}`, { message });
+        }
+      } else {
+        toast.error(error?.message ?? 'Failed to update provider');
+      }
+    }
+  }
+
   const handleDelete = async () => {
     if (!provider.id) return;
     if (!window.confirm('Delete this provider? This cannot be undone.')) return;
     try {
-      await deleteProvider({ id: provider.id });
+      await deleteProvider({ id: provider.id, data: { organizationId: selectedOrg?.id } });
       await queryClient.invalidateQueries({ queryKey: getListProvidersEndpointQueryKey() });
       toast.success('Provider deleted successfully');
-      (onOpenChange ?? setDialogOpen)(false);
+      closeDialog();
     } catch (err) {
       console.error('Failed to delete provider:', err);
       toast.error('Failed to delete provider');
@@ -221,151 +170,75 @@ export function UpdateProviderDialog({
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Update Provider</DialogTitle>
-          <DialogDescription>Edit provider credentials or metadata</DialogDescription>
+          <DialogTitle>
+            Update {providerDef?.displayName ?? provider.displayName ?? 'Provider'}
+          </DialogTitle>
+          <DialogDescription>
+            {channelDef?.displayName && (
+              <span className="mr-2 inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
+                {channelDef.displayName}
+              </span>
+            )}
+            {providerDef?.description ?? 'Edit provider settings'}
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Provider Type</Label>
-              <Select
-                name="type"
-                defaultValue={selectedType}
-                onValueChange={(value) => setSelectedType(value as ProviderType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(ProviderType).map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {providerLabels[value as ProviderType]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="channelType">Channel</Label>
-              <Select
-                name="channelType"
-                defaultValue={channelType}
-                onValueChange={(value) => setChannelType(value as NotificationChannelType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(NotificationChannelType).map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {channelLabels[value as NotificationChannelType]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Provider Name</Label>
-              <Input
-                id="name"
-                name="name"
-                placeholder={placeholder}
-                defaultValue={provider.displayName ?? ''}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="apiKey">API Key</Label>
-              <Input
-                id="apiKey"
-                name="apiKey"
-                type="password"
-                placeholder="Enter your API key"
-                defaultValue={''} //provider.apiKey ??
-              />
-            </div>
-            {renderChannelFields()}
-            <div className="space-y-2">
-              <Label htmlFor="apiSecret">API Secret</Label>
-              <Input
-                id="apiSecret"
-                name="apiSecret"
-                type="password"
-                placeholder="Enter your API secret (if applicable)"
-                defaultValue={''} // provider.secretKey ??
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Settings</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addSetting}>
-                  Add Setting
-                </Button>
-              </div>
-              <div className="space-y-2">
-                {Object.entries(settings).map(([key, value]) => (
-                  <div key={key} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-                    <Input
-                      value={key}
-                      onChange={(e) => {
-                        const newKey = e.target.value;
-                        setSettings((prev) => {
-                          const { [key]: _, ...rest } = prev;
-                          return { ...rest, [newKey]: value };
-                        });
-                      }}
-                      placeholder="Key"
-                    />
-                    <Input
-                      value={value}
-                      onChange={(e) => handleSettingChange(key, e.target.value)}
-                      placeholder="Value"
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => removeSetting(key)}
-                      aria-label={`Remove ${key}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                {Object.keys(settings).length === 0 && (
-                  <p className="text-xs text-gray-500">No settings added yet.</p>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="space-y-4 py-4">
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Display Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={providerDef?.displayName ?? 'Provider name'}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+
+              <ProviderSettingsForm
+                settings={settingsDef}
+                initialValues={existingSettings}
+                isUpdate
+              />
+
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-950">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  Your API credentials are encrypted and stored securely.
+                </p>
               </div>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-900">
-                Your API credentials are encrypted and stored securely.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <div className="flex w-full items-center justify-between gap-2">
-              <Button type="button" variant="destructive" onClick={handleDelete}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => (onOpenChange ?? setDialogOpen)(false)}
-                >
-                  Cancel
+
+            <DialogFooter>
+              <div className="flex w-full items-center justify-between gap-2">
+                <Button type="button" variant="destructive" onClick={handleDelete}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
                 </Button>
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={closeDialog}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Changes
+                  </Button>
+                </div>
               </div>
-            </div>
-          </DialogFooter>
-        </form>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
