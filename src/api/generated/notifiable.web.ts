@@ -28,6 +28,9 @@ import type {
   AudienceGroupDto,
   AvailableProvidersResponse,
   ChannelResponse,
+  ClientNotificationCountResponse,
+  ClientNotificationResponse,
+  ClientNotificationsListResponse,
   ConsumeInternalNotificationRequest,
   ContactRecord,
   ContactUpsertRequest,
@@ -44,9 +47,14 @@ import type {
   DeleteOrganizationRequest,
   DeleteProviderRequest,
   DeleteTemplateRequest,
+  DeviceRegistrationRecord,
   EnqueueNotificationRequest,
+  EnqueueNotificationResponse,
   ErrorResponse,
+  GenerateTokenRequest,
+  GenerateTokenResponse,
   GetAudienceContactsEndpointParams,
+  GetClientNotificationsEndpointParams,
   GetNotificationsListEndpointParams,
   GetTemplateListEndpointParams,
   InternalNotificationDto,
@@ -55,6 +63,8 @@ import type {
   ListChannelsEndpointParams,
   ListContactsEndpointParams,
   ListContactsResponse,
+  ListDevicesEndpointParams,
+  ListDevicesResponse,
   ListInternalNotificationsEndpointParams,
   ListProvidersEndpointParams,
   MakeDefaultProviderRequest,
@@ -66,12 +76,15 @@ import type {
   ProviderDefinitionResponse,
   ProviderResponse,
   ProviderType,
+  PushNotificationRequest,
+  RegisterDeviceRequest,
   RemoveAudienceMemberRequest,
   ResolveRequest,
   RevokeApiKeyRequest,
   TemplateCreateRequest,
   TemplateResponse,
   TemplateUpdateRequest,
+  UnregisterDeviceRequest,
   UpdateAudienceRequest,
   UpdateChannelRequest,
   UpdateContactRequest,
@@ -1480,7 +1493,7 @@ export const enqueueNotificationEndpoint = (
   enqueueNotificationRequest: EnqueueNotificationRequest,
   signal?: AbortSignal,
 ) => {
-  return customAxios<void>({
+  return customAxios<EnqueueNotificationResponse>({
     url: `/api/notifications`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3395,6 +3408,278 @@ export const useCreateTemplateEndpoint = <TError = void, TContext = unknown>(
 };
 
 /**
+ * List registered devices for a contact.
+ */
+export const listDevicesEndpoint = (params: ListDevicesEndpointParams, signal?: AbortSignal) => {
+  return customAxios<ListDevicesResponse>({ url: `/api/devices`, method: 'GET', params, signal });
+};
+
+export const getListDevicesEndpointQueryKey = (params?: ListDevicesEndpointParams) => {
+  return [`/api/devices`, ...(params ? [params] : [])] as const;
+};
+
+export const getListDevicesEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof listDevicesEndpoint>>,
+  TError = void,
+>(
+  params: ListDevicesEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listDevicesEndpoint>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListDevicesEndpointQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listDevicesEndpoint>>> = ({ signal }) =>
+    listDevicesEndpoint(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listDevicesEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ListDevicesEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listDevicesEndpoint>>
+>;
+export type ListDevicesEndpointQueryError = void;
+
+export function useListDevicesEndpoint<
+  TData = Awaited<ReturnType<typeof listDevicesEndpoint>>,
+  TError = void,
+>(
+  params: ListDevicesEndpointParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listDevicesEndpoint>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listDevicesEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof listDevicesEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useListDevicesEndpoint<
+  TData = Awaited<ReturnType<typeof listDevicesEndpoint>>,
+  TError = void,
+>(
+  params: ListDevicesEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listDevicesEndpoint>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listDevicesEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof listDevicesEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useListDevicesEndpoint<
+  TData = Awaited<ReturnType<typeof listDevicesEndpoint>>,
+  TError = void,
+>(
+  params: ListDevicesEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listDevicesEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useListDevicesEndpoint<
+  TData = Awaited<ReturnType<typeof listDevicesEndpoint>>,
+  TError = void,
+>(
+  params: ListDevicesEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listDevicesEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getListDevicesEndpointQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Register or update a device token for a contact.
+ */
+export const registerDeviceEndpoint = (
+  registerDeviceRequest: RegisterDeviceRequest,
+  signal?: AbortSignal,
+) => {
+  return customAxios<DeviceRegistrationRecord>({
+    url: `/api/devices`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: registerDeviceRequest,
+    signal,
+  });
+};
+
+export const getRegisterDeviceEndpointMutationOptions = <
+  TError = ErrorResponse | void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof registerDeviceEndpoint>>,
+    TError,
+    { data: RegisterDeviceRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof registerDeviceEndpoint>>,
+  TError,
+  { data: RegisterDeviceRequest },
+  TContext
+> => {
+  const mutationKey = ['registerDeviceEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof registerDeviceEndpoint>>,
+    { data: RegisterDeviceRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return registerDeviceEndpoint(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RegisterDeviceEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof registerDeviceEndpoint>>
+>;
+export type RegisterDeviceEndpointMutationBody = RegisterDeviceRequest;
+export type RegisterDeviceEndpointMutationError = ErrorResponse | void;
+
+export const useRegisterDeviceEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof registerDeviceEndpoint>>,
+      TError,
+      { data: RegisterDeviceRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof registerDeviceEndpoint>>,
+  TError,
+  { data: RegisterDeviceRequest },
+  TContext
+> => {
+  const mutationOptions = getRegisterDeviceEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * Unregister (deactivate) a device.
+ */
+export const unregisterDeviceEndpoint = (
+  id: string,
+  unregisterDeviceRequest: UnregisterDeviceRequest,
+) => {
+  return customAxios<void>({
+    url: `/api/devices/${id}`,
+    method: 'DELETE',
+    headers: { 'Content-Type': '*/*' },
+    data: unregisterDeviceRequest,
+  });
+};
+
+export const getUnregisterDeviceEndpointMutationOptions = <
+  TError = void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof unregisterDeviceEndpoint>>,
+    TError,
+    { id: string; data: UnregisterDeviceRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof unregisterDeviceEndpoint>>,
+  TError,
+  { id: string; data: UnregisterDeviceRequest },
+  TContext
+> => {
+  const mutationKey = ['unregisterDeviceEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof unregisterDeviceEndpoint>>,
+    { id: string; data: UnregisterDeviceRequest }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return unregisterDeviceEndpoint(id, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UnregisterDeviceEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof unregisterDeviceEndpoint>>
+>;
+export type UnregisterDeviceEndpointMutationBody = UnregisterDeviceRequest;
+export type UnregisterDeviceEndpointMutationError = void;
+
+export const useUnregisterDeviceEndpoint = <TError = void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof unregisterDeviceEndpoint>>,
+      TError,
+      { id: string; data: UnregisterDeviceRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof unregisterDeviceEndpoint>>,
+  TError,
+  { id: string; data: UnregisterDeviceRequest },
+  TContext
+> => {
+  const mutationOptions = getUnregisterDeviceEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+/**
  * Delete a contact within an organization.
  */
 export const deleteContactEndpoint = (
@@ -4616,6 +4901,482 @@ export const useRemoveAudienceMemberEndpoint = <TError = void, TContext = unknow
 
   return useMutation(mutationOptions, queryClient);
 };
+
+export const pushNotificationEndpoint = (
+  pushNotificationRequest: PushNotificationRequest,
+  signal?: AbortSignal,
+) => {
+  return customAxios<void>({
+    url: `/api/subscriptions/push`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: pushNotificationRequest,
+    signal,
+  });
+};
+
+export const getPushNotificationEndpointMutationOptions = <
+  TError = ErrorResponse | void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof pushNotificationEndpoint>>,
+    TError,
+    { data: PushNotificationRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof pushNotificationEndpoint>>,
+  TError,
+  { data: PushNotificationRequest },
+  TContext
+> => {
+  const mutationKey = ['pushNotificationEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof pushNotificationEndpoint>>,
+    { data: PushNotificationRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return pushNotificationEndpoint(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PushNotificationEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof pushNotificationEndpoint>>
+>;
+export type PushNotificationEndpointMutationBody = PushNotificationRequest;
+export type PushNotificationEndpointMutationError = ErrorResponse | void;
+
+export const usePushNotificationEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof pushNotificationEndpoint>>,
+      TError,
+      { data: PushNotificationRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof pushNotificationEndpoint>>,
+  TError,
+  { data: PushNotificationRequest },
+  TContext
+> => {
+  const mutationOptions = getPushNotificationEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+export const generateTokenEndpoint = (
+  generateTokenRequest: GenerateTokenRequest,
+  signal?: AbortSignal,
+) => {
+  return customAxios<GenerateTokenResponse>({
+    url: `/api/subscriptions/token`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: generateTokenRequest,
+    signal,
+  });
+};
+
+export const getGenerateTokenEndpointMutationOptions = <
+  TError = ErrorResponse | void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateTokenEndpoint>>,
+    TError,
+    { data: GenerateTokenRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generateTokenEndpoint>>,
+  TError,
+  { data: GenerateTokenRequest },
+  TContext
+> => {
+  const mutationKey = ['generateTokenEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateTokenEndpoint>>,
+    { data: GenerateTokenRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generateTokenEndpoint(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GenerateTokenEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateTokenEndpoint>>
+>;
+export type GenerateTokenEndpointMutationBody = GenerateTokenRequest;
+export type GenerateTokenEndpointMutationError = ErrorResponse | void;
+
+export const useGenerateTokenEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof generateTokenEndpoint>>,
+      TError,
+      { data: GenerateTokenRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof generateTokenEndpoint>>,
+  TError,
+  { data: GenerateTokenRequest },
+  TContext
+> => {
+  const mutationOptions = getGenerateTokenEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+export const consumeClientNotificationEndpoint = (
+  token: string,
+  id: string,
+  signal?: AbortSignal,
+) => {
+  return customAxios<ClientNotificationResponse>({
+    url: `/api/client/${token}/notifications/${id}/consume`,
+    method: 'POST',
+    signal,
+  });
+};
+
+export const getConsumeClientNotificationEndpointMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>,
+    TError,
+    { token: string; id: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>,
+  TError,
+  { token: string; id: string },
+  TContext
+> => {
+  const mutationKey = ['consumeClientNotificationEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>,
+    { token: string; id: string }
+  > = (props) => {
+    const { token, id } = props ?? {};
+
+    return consumeClientNotificationEndpoint(token, id);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ConsumeClientNotificationEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>
+>;
+
+export type ConsumeClientNotificationEndpointMutationError = unknown;
+
+export const useConsumeClientNotificationEndpoint = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>,
+      TError,
+      { token: string; id: string },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>,
+  TError,
+  { token: string; id: string },
+  TContext
+> => {
+  const mutationOptions = getConsumeClientNotificationEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+export const getClientNotificationCountEndpoint = (token: string, signal?: AbortSignal) => {
+  return customAxios<ClientNotificationCountResponse>({
+    url: `/api/client/${token}/notifications/count`,
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getGetClientNotificationCountEndpointQueryKey = (token?: string) => {
+  return [`/api/client/${token}/notifications/count`] as const;
+};
+
+export const getGetClientNotificationCountEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetClientNotificationCountEndpointQueryKey(token);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>> = ({
+    signal,
+  }) => getClientNotificationCountEndpoint(token, signal);
+
+  return { queryKey, queryFn, enabled: !!token, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetClientNotificationCountEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>
+>;
+export type GetClientNotificationCountEndpointQueryError = unknown;
+
+export function useGetClientNotificationCountEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetClientNotificationCountEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetClientNotificationCountEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetClientNotificationCountEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetClientNotificationCountEndpointQueryOptions(token, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getClientNotificationsEndpoint = (
+  token: string,
+  params: GetClientNotificationsEndpointParams,
+  signal?: AbortSignal,
+) => {
+  return customAxios<ClientNotificationsListResponse>({
+    url: `/api/client/${token}/notifications`,
+    method: 'GET',
+    params,
+    signal,
+  });
+};
+
+export const getGetClientNotificationsEndpointQueryKey = (
+  token?: string,
+  params?: GetClientNotificationsEndpointParams,
+) => {
+  return [`/api/client/${token}/notifications`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetClientNotificationsEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  params: GetClientNotificationsEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationsEndpoint>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetClientNotificationsEndpointQueryKey(token, params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClientNotificationsEndpoint>>> = ({
+    signal,
+  }) => getClientNotificationsEndpoint(token, params, signal);
+
+  return { queryKey, queryFn, enabled: !!token, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetClientNotificationsEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClientNotificationsEndpoint>>
+>;
+export type GetClientNotificationsEndpointQueryError = unknown;
+
+export function useGetClientNotificationsEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  params: GetClientNotificationsEndpointParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationsEndpoint>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getClientNotificationsEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetClientNotificationsEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  params: GetClientNotificationsEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationsEndpoint>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+          TError,
+          Awaited<ReturnType<typeof getClientNotificationsEndpoint>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+export function useGetClientNotificationsEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  params: GetClientNotificationsEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationsEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+export function useGetClientNotificationsEndpoint<
+  TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
+  TError = unknown,
+>(
+  token: string,
+  params: GetClientNotificationsEndpointParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getClientNotificationsEndpoint>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetClientNotificationsEndpointQueryOptions(token, params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 export const getUsersMe = (signal?: AbortSignal) => {
   return customAxios<void>({ url: `/users/me`, method: 'GET', signal });

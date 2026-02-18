@@ -12,6 +12,9 @@ import type {
   AudienceGroupDto,
   AvailableProvidersResponse,
   ChannelResponse,
+  ClientNotificationCountResponse,
+  ClientNotificationResponse,
+  ClientNotificationsListResponse,
   ConsumeInternalNotificationRequest,
   ContactRecord,
   ContactUpsertRequest,
@@ -28,8 +31,13 @@ import type {
   DeleteOrganizationRequest,
   DeleteProviderRequest,
   DeleteTemplateRequest,
+  DeviceRegistrationRecord,
   EnqueueNotificationRequest,
+  EnqueueNotificationResponse,
+  GenerateTokenRequest,
+  GenerateTokenResponse,
   GetAudienceContactsEndpointParams,
+  GetClientNotificationsEndpointParams,
   GetNotificationsListEndpointParams,
   GetTemplateListEndpointParams,
   InternalNotificationDto,
@@ -38,6 +46,8 @@ import type {
   ListChannelsEndpointParams,
   ListContactsEndpointParams,
   ListContactsResponse,
+  ListDevicesEndpointParams,
+  ListDevicesResponse,
   ListInternalNotificationsEndpointParams,
   ListProvidersEndpointParams,
   MakeDefaultProviderRequest,
@@ -49,12 +59,15 @@ import type {
   ProviderDefinitionResponse,
   ProviderResponse,
   ProviderType,
+  PushNotificationRequest,
+  RegisterDeviceRequest,
   RemoveAudienceMemberRequest,
   ResolveRequest,
   RevokeApiKeyRequest,
   TemplateCreateRequest,
   TemplateResponse,
   TemplateUpdateRequest,
+  UnregisterDeviceRequest,
   UpdateAudienceRequest,
   UpdateChannelRequest,
   UpdateContactRequest,
@@ -252,9 +265,9 @@ export const getNotifiableAPI = () => {
    */
   const enqueueNotificationEndpoint = (
     enqueueNotificationRequest: EnqueueNotificationRequest,
-    options?: SecondParameter<typeof serverAxios<void>>,
+    options?: SecondParameter<typeof serverAxios<EnqueueNotificationResponse>>,
   ) => {
-    return serverAxios<void>(
+    return serverAxios<EnqueueNotificationResponse>(
       {
         url: `/api/notifications`,
         method: 'POST',
@@ -542,6 +555,56 @@ export const getNotifiableAPI = () => {
   };
 
   /**
+   * List registered devices for a contact.
+   */
+  const listDevicesEndpoint = (
+    params: ListDevicesEndpointParams,
+    options?: SecondParameter<typeof serverAxios<ListDevicesResponse>>,
+  ) => {
+    return serverAxios<ListDevicesResponse>(
+      { url: `/api/devices`, method: 'GET', params },
+      options,
+    );
+  };
+
+  /**
+   * Register or update a device token for a contact.
+   */
+  const registerDeviceEndpoint = (
+    registerDeviceRequest: RegisterDeviceRequest,
+    options?: SecondParameter<typeof serverAxios<DeviceRegistrationRecord>>,
+  ) => {
+    return serverAxios<DeviceRegistrationRecord>(
+      {
+        url: `/api/devices`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: registerDeviceRequest,
+      },
+      options,
+    );
+  };
+
+  /**
+   * Unregister (deactivate) a device.
+   */
+  const unregisterDeviceEndpoint = (
+    id: string,
+    unregisterDeviceRequest: UnregisterDeviceRequest,
+    options?: SecondParameter<typeof serverAxios<void>>,
+  ) => {
+    return serverAxios<void>(
+      {
+        url: `/api/devices/${id}`,
+        method: 'DELETE',
+        headers: { 'Content-Type': '*/*' },
+        data: unregisterDeviceRequest,
+      },
+      options,
+    );
+  };
+
+  /**
    * Delete a contact within an organization.
    */
   const deleteContactEndpoint = (
@@ -748,6 +811,68 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  const pushNotificationEndpoint = (
+    pushNotificationRequest: PushNotificationRequest,
+    options?: SecondParameter<typeof serverAxios<void>>,
+  ) => {
+    return serverAxios<void>(
+      {
+        url: `/api/subscriptions/push`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: pushNotificationRequest,
+      },
+      options,
+    );
+  };
+
+  const generateTokenEndpoint = (
+    generateTokenRequest: GenerateTokenRequest,
+    options?: SecondParameter<typeof serverAxios<GenerateTokenResponse>>,
+  ) => {
+    return serverAxios<GenerateTokenResponse>(
+      {
+        url: `/api/subscriptions/token`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: generateTokenRequest,
+      },
+      options,
+    );
+  };
+
+  const consumeClientNotificationEndpoint = (
+    token: string,
+    id: string,
+    options?: SecondParameter<typeof serverAxios<ClientNotificationResponse>>,
+  ) => {
+    return serverAxios<ClientNotificationResponse>(
+      { url: `/api/client/${token}/notifications/${id}/consume`, method: 'POST' },
+      options,
+    );
+  };
+
+  const getClientNotificationCountEndpoint = (
+    token: string,
+    options?: SecondParameter<typeof serverAxios<ClientNotificationCountResponse>>,
+  ) => {
+    return serverAxios<ClientNotificationCountResponse>(
+      { url: `/api/client/${token}/notifications/count`, method: 'GET' },
+      options,
+    );
+  };
+
+  const getClientNotificationsEndpoint = (
+    token: string,
+    params: GetClientNotificationsEndpointParams,
+    options?: SecondParameter<typeof serverAxios<ClientNotificationsListResponse>>,
+  ) => {
+    return serverAxios<ClientNotificationsListResponse>(
+      { url: `/api/client/${token}/notifications`, method: 'GET', params },
+      options,
+    );
+  };
+
   const getUsersMe = (options?: SecondParameter<typeof serverAxios<void>>) => {
     return serverAxios<void>({ url: `/users/me`, method: 'GET' }, options);
   };
@@ -788,6 +913,9 @@ export const getNotifiableAPI = () => {
     resolveTemplateEndpoint,
     getTemplateListEndpoint,
     createTemplateEndpoint,
+    listDevicesEndpoint,
+    registerDeviceEndpoint,
+    unregisterDeviceEndpoint,
     deleteContactEndpoint,
     getContactEndpoint,
     updateContactEndpoint,
@@ -801,6 +929,11 @@ export const getNotifiableAPI = () => {
     getAudienceEndpoint,
     updateAudienceEndpoint,
     removeAudienceMemberEndpoint,
+    pushNotificationEndpoint,
+    generateTokenEndpoint,
+    consumeClientNotificationEndpoint,
+    getClientNotificationCountEndpoint,
+    getClientNotificationsEndpoint,
     getUsersMe,
   };
 };
@@ -909,6 +1042,15 @@ export type GetTemplateListEndpointResult = NonNullable<
 export type CreateTemplateEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['createTemplateEndpoint']>>
 >;
+export type ListDevicesEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['listDevicesEndpoint']>>
+>;
+export type RegisterDeviceEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['registerDeviceEndpoint']>>
+>;
+export type UnregisterDeviceEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['unregisterDeviceEndpoint']>>
+>;
 export type DeleteContactEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['deleteContactEndpoint']>>
 >;
@@ -947,6 +1089,21 @@ export type UpdateAudienceEndpointResult = NonNullable<
 >;
 export type RemoveAudienceMemberEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['removeAudienceMemberEndpoint']>>
+>;
+export type PushNotificationEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['pushNotificationEndpoint']>>
+>;
+export type GenerateTokenEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['generateTokenEndpoint']>>
+>;
+export type ConsumeClientNotificationEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['consumeClientNotificationEndpoint']>>
+>;
+export type GetClientNotificationCountEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getClientNotificationCountEndpoint']>>
+>;
+export type GetClientNotificationsEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getClientNotificationsEndpoint']>>
 >;
 export type GetUsersMeResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getUsersMe']>>

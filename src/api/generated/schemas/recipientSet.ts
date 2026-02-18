@@ -16,10 +16,8 @@ export interface RecipientSet {
    * @minLength 1
    */
   phoneNumbers: string[];
-  /**
-   * @minLength 1
-   */
-  deviceTokens: string[];
+  /** @nullable */
+  deviceTokens?: string[] | null;
   /** @nullable */
   userIds?: string[] | null;
   /** @nullable */
