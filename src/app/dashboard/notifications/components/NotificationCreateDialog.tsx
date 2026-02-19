@@ -799,9 +799,8 @@ export default function NotificationCreateDialog({
                     {selectedChannel === 'email' && inlineSubject && (
                       <p className="text-sm font-semibold mb-1">Subject: {inlineSubject}</p>
                     )}
-                    {(selectedChannel === 'push' || selectedChannel === 'internal') && inlineTitle && (
-                      <p className="text-sm font-semibold mb-1">{inlineTitle}</p>
-                    )}
+                    {(selectedChannel === 'push' || selectedChannel === 'internal') &&
+                      inlineTitle && <p className="text-sm font-semibold mb-1">{inlineTitle}</p>}
                     <p className="text-sm whitespace-pre-wrap">{inlineBody}</p>
                   </div>
                 )}

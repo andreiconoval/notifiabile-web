@@ -32,7 +32,7 @@ import type {
   DeleteProviderRequest,
   DeleteTemplateRequest,
   DeviceRegistrationRecord,
-  EnqueueNotificationRequest,
+  EnqueueNotificationRequests,
   EnqueueNotificationResponse,
   GenerateTokenRequest,
   GenerateTokenResponse,
@@ -308,7 +308,7 @@ export const getNotifiableAPI = () => {
    * @summary Enqueue a notification for async delivery (email, sms, or push).
    */
   const enqueueNotificationEndpoint = (
-    enqueueNotificationRequest: EnqueueNotificationRequest,
+    enqueueNotificationRequests: EnqueueNotificationRequests,
     options?: SecondParameter<typeof serverAxios<EnqueueNotificationResponse>>,
   ) => {
     return serverAxios<EnqueueNotificationResponse>(
@@ -316,7 +316,7 @@ export const getNotifiableAPI = () => {
         url: `/api/notifications`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        data: enqueueNotificationRequest,
+        data: enqueueNotificationRequests,
       },
       options,
     );

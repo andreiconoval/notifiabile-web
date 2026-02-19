@@ -878,21 +878,21 @@
           {
             "name": "x-Organization-Id",
             "in": "header",
+            "required": true,
             "schema": {
               "type": "string",
-              "format": "guid",
-              "nullable": true
+              "format": "guid"
             },
             "example": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
           }
         ],
         "requestBody": {
-          "x-name": "EnqueueNotificationRequest",
+          "x-name": "EnqueueNotificationRequests",
           "description": "",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EnqueueNotificationRequest"
+                "$ref": "#/components/schemas/EnqueueNotificationRequests"
               }
             }
           },
@@ -3900,10 +3900,9 @@
           }
         }
       },
-      "EnqueueNotificationRequest": {
+      "EnqueueNotificationRequests": {
         "type": "object",
         "example": {
-          "organizationId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
           "channelType": "email",
           "recipients": {
             "emails": [
@@ -3927,17 +3926,7 @@
           "correlationId": null
         },
         "additionalProperties": false,
-        "required": [
-          "organizationId"
-        ],
         "properties": {
-          "organizationId": {
-            "type": "string",
-            "format": "guid",
-            "minLength": 1,
-            "nullable": false,
-            "example": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-          },
           "channelType": {
             "example": "email",
             "$ref": "#/components/schemas/NotificationChannelType"
