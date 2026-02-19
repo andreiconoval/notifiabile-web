@@ -69,6 +69,7 @@ import type {
   ListProvidersEndpointParams,
   MakeDefaultProviderRequest,
   NotificationListResponse,
+  NotificationStatusResponse,
   OrganizationResponse,
   PagedResultOfAudienceGroupDto,
   PagedResultOfContactRecord,
@@ -94,6 +95,10 @@ import type {
 } from './schemas';
 
 import { customAxios } from '../http';
+/**
+ * Create a new organization. The calling user becomes the owner.
+ * @summary Create an organization.
+ */
 export const createOrganizationEndpoint = (
   createOrganizationRequest: CreateOrganizationRequest,
   signal?: AbortSignal,
@@ -148,6 +153,9 @@ export type CreateOrganizationEndpointMutationResult = NonNullable<
 export type CreateOrganizationEndpointMutationBody = CreateOrganizationRequest;
 export type CreateOrganizationEndpointMutationError = void;
 
+/**
+ * @summary Create an organization.
+ */
 export const useCreateOrganizationEndpoint = <TError = void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -169,6 +177,10 @@ export const useCreateOrganizationEndpoint = <TError = void, TContext = unknown>
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * List all organizations the current user belongs to.
+ * @summary List organizations.
+ */
 export const listOrganizationsEndpoint = (signal?: AbortSignal) => {
   return customAxios<OrganizationResponse[]>({
     url: `/api/identity/organizations`,
@@ -258,6 +270,9 @@ export function useListOrganizationsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List organizations.
+ */
 
 export function useListOrganizationsEndpoint<
   TData = Awaited<ReturnType<typeof listOrganizationsEndpoint>>,
@@ -281,11 +296,15 @@ export function useListOrganizationsEndpoint<
   return query;
 }
 
+/**
+ * Permanently delete an organization and remove all memberships.
+ * @summary Delete an organization.
+ */
 export const deleteOrganizationEndpoint = (
   id: string,
   deleteOrganizationRequest: DeleteOrganizationRequest,
 ) => {
-  return customAxios<boolean>({
+  return customAxios<void>({
     url: `/api/identity/organizations/${id}`,
     method: 'DELETE',
     headers: { 'Content-Type': '*/*' },
@@ -294,7 +313,7 @@ export const deleteOrganizationEndpoint = (
 };
 
 export const getDeleteOrganizationEndpointMutationOptions = <
-  TError = void,
+  TError = void | void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -332,9 +351,12 @@ export type DeleteOrganizationEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteOrganizationEndpoint>>
 >;
 export type DeleteOrganizationEndpointMutationBody = DeleteOrganizationRequest;
-export type DeleteOrganizationEndpointMutationError = void;
+export type DeleteOrganizationEndpointMutationError = void | void | void;
 
-export const useDeleteOrganizationEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Delete an organization.
+ */
+export const useDeleteOrganizationEndpoint = <TError = void | void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteOrganizationEndpoint>>,
@@ -355,6 +377,10 @@ export const useDeleteOrganizationEndpoint = <TError = void, TContext = unknown>
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Update an organization's name or timezone.
+ * @summary Update an organization.
+ */
 export const updateOrganizationEndpoint = (
   id: string,
   updateOrganizationRequest: UpdateOrganizationRequest,
@@ -368,7 +394,7 @@ export const updateOrganizationEndpoint = (
 };
 
 export const getUpdateOrganizationEndpointMutationOptions = <
-  TError = void,
+  TError = void | void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -406,9 +432,12 @@ export type UpdateOrganizationEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateOrganizationEndpoint>>
 >;
 export type UpdateOrganizationEndpointMutationBody = UpdateOrganizationRequest;
-export type UpdateOrganizationEndpointMutationError = void;
+export type UpdateOrganizationEndpointMutationError = void | void | void;
 
-export const useUpdateOrganizationEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Update an organization.
+ */
+export const useUpdateOrganizationEndpoint = <TError = void | void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateOrganizationEndpoint>>,
@@ -429,6 +458,10 @@ export const useUpdateOrganizationEndpoint = <TError = void, TContext = unknown>
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Get the organization membership for the current user.
+ * @summary Get my organization.
+ */
 export const getMyOrganizationEndpoint = (signal?: AbortSignal) => {
   return customAxios<OrganizationResponse>({
     url: `/api/identity/organizations/me`,
@@ -443,7 +476,7 @@ export const getGetMyOrganizationEndpointQueryKey = () => {
 
 export const getGetMyOrganizationEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getMyOrganizationEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getMyOrganizationEndpoint>>, TError, TData>
@@ -467,11 +500,11 @@ export const getGetMyOrganizationEndpointQueryOptions = <
 export type GetMyOrganizationEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getMyOrganizationEndpoint>>
 >;
-export type GetMyOrganizationEndpointQueryError = void;
+export type GetMyOrganizationEndpointQueryError = void | void;
 
 export function useGetMyOrganizationEndpoint<
   TData = Awaited<ReturnType<typeof getMyOrganizationEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   options: {
     query: Partial<
@@ -490,7 +523,7 @@ export function useGetMyOrganizationEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetMyOrganizationEndpoint<
   TData = Awaited<ReturnType<typeof getMyOrganizationEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   options?: {
     query?: Partial<
@@ -509,7 +542,7 @@ export function useGetMyOrganizationEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetMyOrganizationEndpoint<
   TData = Awaited<ReturnType<typeof getMyOrganizationEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   options?: {
     query?: Partial<
@@ -518,10 +551,13 @@ export function useGetMyOrganizationEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get my organization.
+ */
 
 export function useGetMyOrganizationEndpoint<
   TData = Awaited<ReturnType<typeof getMyOrganizationEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   options?: {
     query?: Partial<
@@ -541,6 +577,10 @@ export function useGetMyOrganizationEndpoint<
   return query;
 }
 
+/**
+ * Create a new API key for the organization. The raw key is only returned once.
+ * @summary Create an API key.
+ */
 export const createApiKeyEndpoint = (
   createApiKeyRequest: CreateApiKeyRequest,
   signal?: AbortSignal,
@@ -595,6 +635,9 @@ export type CreateApiKeyEndpointMutationResult = NonNullable<
 export type CreateApiKeyEndpointMutationBody = CreateApiKeyRequest;
 export type CreateApiKeyEndpointMutationError = ErrorResponse | void;
 
+/**
+ * @summary Create an API key.
+ */
 export const useCreateApiKeyEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -616,6 +659,10 @@ export const useCreateApiKeyEndpoint = <TError = ErrorResponse | void, TContext 
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * List all API keys for the organization.
+ * @summary List API keys.
+ */
 export const listApiKeysEndpoint = (signal?: AbortSignal) => {
   return customAxios<ApiKeyResponse[]>({ url: `/api/identity/api-keys`, method: 'GET', signal });
 };
@@ -698,6 +745,9 @@ export function useListApiKeysEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List API keys.
+ */
 
 export function useListApiKeysEndpoint<
   TData = Awaited<ReturnType<typeof listApiKeysEndpoint>>,
@@ -721,6 +771,10 @@ export function useListApiKeysEndpoint<
   return query;
 }
 
+/**
+ * Retrieve a single API key by its unique identifier.
+ * @summary Get an API key by ID.
+ */
 export const getApiKeyEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<ApiKeyResponse>({
     url: `/api/identity/api-keys/${id}`,
@@ -735,7 +789,7 @@ export const getGetApiKeyEndpointQueryKey = (id?: string) => {
 
 export const getGetApiKeyEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -759,11 +813,11 @@ export const getGetApiKeyEndpointQueryOptions = <
 export type GetApiKeyEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiKeyEndpoint>>
 >;
-export type GetApiKeyEndpointQueryError = void;
+export type GetApiKeyEndpointQueryError = void | void;
 
 export function useGetApiKeyEndpoint<
   TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options: {
@@ -781,7 +835,7 @@ export function useGetApiKeyEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetApiKeyEndpoint<
   TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -799,7 +853,7 @@ export function useGetApiKeyEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetApiKeyEndpoint<
   TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -807,10 +861,13 @@ export function useGetApiKeyEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get an API key by ID.
+ */
 
 export function useGetApiKeyEndpoint<
   TData = Awaited<ReturnType<typeof getApiKeyEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -829,6 +886,10 @@ export function useGetApiKeyEndpoint<
   return query;
 }
 
+/**
+ * Permanently revoke an API key by ID.
+ * @summary Revoke an API key.
+ */
 export const revokeApiKeyEndpoint = (id: string, revokeApiKeyRequest: RevokeApiKeyRequest) => {
   return customAxios<void>({
     url: `/api/identity/api-keys/${id}`,
@@ -839,7 +900,7 @@ export const revokeApiKeyEndpoint = (id: string, revokeApiKeyRequest: RevokeApiK
 };
 
 export const getRevokeApiKeyEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -877,9 +938,12 @@ export type RevokeApiKeyEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof revokeApiKeyEndpoint>>
 >;
 export type RevokeApiKeyEndpointMutationBody = RevokeApiKeyRequest;
-export type RevokeApiKeyEndpointMutationError = void;
+export type RevokeApiKeyEndpointMutationError = void | void;
 
-export const useRevokeApiKeyEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Revoke an API key.
+ */
+export const useRevokeApiKeyEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof revokeApiKeyEndpoint>>,
@@ -902,6 +966,7 @@ export const useRevokeApiKeyEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Fetch a notification for a user and mark it as read.
+ * @summary Consume an internal notification.
  */
 export const consumeInternalNotificationEndpoint = (
   id: string,
@@ -918,7 +983,7 @@ export const consumeInternalNotificationEndpoint = (
 };
 
 export const getConsumeInternalNotificationEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -956,9 +1021,12 @@ export type ConsumeInternalNotificationEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof consumeInternalNotificationEndpoint>>
 >;
 export type ConsumeInternalNotificationEndpointMutationBody = ConsumeInternalNotificationRequest;
-export type ConsumeInternalNotificationEndpointMutationError = void;
+export type ConsumeInternalNotificationEndpointMutationError = void | void;
 
-export const useConsumeInternalNotificationEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Consume an internal notification.
+ */
+export const useConsumeInternalNotificationEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof consumeInternalNotificationEndpoint>>,
@@ -981,6 +1049,7 @@ export const useConsumeInternalNotificationEndpoint = <TError = void, TContext =
 
 /**
  * Count unread internal notifications for a user.
+ * @summary Count unread internal notifications.
  */
 export const countInternalNotificationsEndpoint = (
   params?: CountInternalNotificationsEndpointParams,
@@ -1083,6 +1152,9 @@ export function useCountInternalNotificationsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Count unread internal notifications.
+ */
 
 export function useCountInternalNotificationsEndpoint<
   TData = Awaited<ReturnType<typeof countInternalNotificationsEndpoint>>,
@@ -1109,6 +1181,7 @@ export function useCountInternalNotificationsEndpoint<
 
 /**
  * List internal notifications for a user.
+ * @summary List internal notifications.
  */
 export const listInternalNotificationsEndpoint = (
   params: ListInternalNotificationsEndpointParams,
@@ -1211,6 +1284,9 @@ export function useListInternalNotificationsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List internal notifications.
+ */
 
 export function useListInternalNotificationsEndpoint<
   TData = Awaited<ReturnType<typeof listInternalNotificationsEndpoint>>,
@@ -1240,7 +1316,11 @@ export function useListInternalNotificationsEndpoint<
  * @summary Get current status of a notification.
  */
 export const getNotificationStatusEndpoint = (id: string, signal?: AbortSignal) => {
-  return customAxios<void>({ url: `/api/notifications/${id}`, method: 'GET', signal });
+  return customAxios<NotificationStatusResponse>({
+    url: `/api/notifications/${id}`,
+    method: 'GET',
+    signal,
+  });
 };
 
 export const getGetNotificationStatusEndpointQueryKey = (id?: string) => {
@@ -1358,7 +1438,8 @@ export function useGetNotificationStatusEndpoint<
 }
 
 /**
- * List notifications for the current organization with optional filtering.
+ * Returns a paged list of notifications that belong to the organization identified by the X-Organization-Id header. Supports filtering by title, body, status, channel, and read state.
+ * @summary Retrieve notifications for the selected organization.
  */
 export const getNotificationsListEndpoint = (
   params: GetNotificationsListEndpointParams,
@@ -1461,6 +1542,9 @@ export function useGetNotificationsListEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Retrieve notifications for the selected organization.
+ */
 
 export function useGetNotificationsListEndpoint<
   TData = Awaited<ReturnType<typeof getNotificationsListEndpoint>>,
@@ -1567,6 +1651,10 @@ export const useEnqueueNotificationEndpoint = <TError = ErrorResponse | void, TC
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Create a new provider configuration for an organization channel.
+ * @summary Create a provider.
+ */
 export const createProviderEndpoint = (
   createProviderRequest: CreateProviderRequest,
   signal?: AbortSignal,
@@ -1621,6 +1709,9 @@ export type CreateProviderEndpointMutationResult = NonNullable<
 export type CreateProviderEndpointMutationBody = CreateProviderRequest;
 export type CreateProviderEndpointMutationError = ErrorResponse | void;
 
+/**
+ * @summary Create a provider.
+ */
 export const useCreateProviderEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -1642,6 +1733,10 @@ export const useCreateProviderEndpoint = <TError = ErrorResponse | void, TContex
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * List all providers for an organization.
+ * @summary List providers.
+ */
 export const listProvidersEndpoint = (
   params?: ListProvidersEndpointParams,
   signal?: AbortSignal,
@@ -1735,6 +1830,9 @@ export function useListProvidersEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List providers.
+ */
 
 export function useListProvidersEndpoint<
   TData = Awaited<ReturnType<typeof listProvidersEndpoint>>,
@@ -1759,6 +1857,10 @@ export function useListProvidersEndpoint<
   return query;
 }
 
+/**
+ * Delete a provider by ID.
+ * @summary Delete a provider.
+ */
 export const deleteProviderEndpoint = (
   id: string,
   deleteProviderRequest: DeleteProviderRequest,
@@ -1772,7 +1874,7 @@ export const deleteProviderEndpoint = (
 };
 
 export const getDeleteProviderEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1810,9 +1912,12 @@ export type DeleteProviderEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteProviderEndpoint>>
 >;
 export type DeleteProviderEndpointMutationBody = DeleteProviderRequest;
-export type DeleteProviderEndpointMutationError = void;
+export type DeleteProviderEndpointMutationError = void | void;
 
-export const useDeleteProviderEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Delete a provider.
+ */
+export const useDeleteProviderEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteProviderEndpoint>>,
@@ -1833,6 +1938,10 @@ export const useDeleteProviderEndpoint = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Retrieve a single provider by its unique identifier.
+ * @summary Get a provider by ID.
+ */
 export const getProviderByIdEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<ProviderResponse>({ url: `/api/providers/${id}`, method: 'GET', signal });
 };
@@ -1843,7 +1952,7 @@ export const getGetProviderByIdEndpointQueryKey = (id?: string) => {
 
 export const getGetProviderByIdEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getProviderByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -1870,11 +1979,11 @@ export const getGetProviderByIdEndpointQueryOptions = <
 export type GetProviderByIdEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProviderByIdEndpoint>>
 >;
-export type GetProviderByIdEndpointQueryError = void;
+export type GetProviderByIdEndpointQueryError = void | void;
 
 export function useGetProviderByIdEndpoint<
   TData = Awaited<ReturnType<typeof getProviderByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options: {
@@ -1894,7 +2003,7 @@ export function useGetProviderByIdEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetProviderByIdEndpoint<
   TData = Awaited<ReturnType<typeof getProviderByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -1914,7 +2023,7 @@ export function useGetProviderByIdEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetProviderByIdEndpoint<
   TData = Awaited<ReturnType<typeof getProviderByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -1924,10 +2033,13 @@ export function useGetProviderByIdEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get a provider by ID.
+ */
 
 export function useGetProviderByIdEndpoint<
   TData = Awaited<ReturnType<typeof getProviderByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -1948,6 +2060,10 @@ export function useGetProviderByIdEndpoint<
   return query;
 }
 
+/**
+ * Update a provider configuration.
+ * @summary Update a provider.
+ */
 export const updateProviderEndpoint = (
   id: string,
   updateProviderRequest: UpdateProviderRequest,
@@ -1961,7 +2077,7 @@ export const updateProviderEndpoint = (
 };
 
 export const getUpdateProviderEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1999,9 +2115,12 @@ export type UpdateProviderEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateProviderEndpoint>>
 >;
 export type UpdateProviderEndpointMutationBody = UpdateProviderRequest;
-export type UpdateProviderEndpointMutationError = void;
+export type UpdateProviderEndpointMutationError = void | void;
 
-export const useUpdateProviderEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Update a provider.
+ */
+export const useUpdateProviderEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateProviderEndpoint>>,
@@ -2023,7 +2142,8 @@ export const useUpdateProviderEndpoint = <TError = void, TContext = unknown>(
 };
 
 /**
- * @summary Make this provider the default for its channel.
+ * Make this provider the default for its channel.
+ * @summary Make provider the default.
  */
 export const makeDefaultProviderEndpoint = (
   id: string,
@@ -2081,7 +2201,7 @@ export type MakeDefaultProviderEndpointMutationBody = MakeDefaultProviderRequest
 export type MakeDefaultProviderEndpointMutationError = void;
 
 /**
- * @summary Make this provider the default for its channel.
+ * @summary Make provider the default.
  */
 export const useMakeDefaultProviderEndpoint = <TError = void, TContext = unknown>(
   options?: {
@@ -2105,7 +2225,8 @@ export const useMakeDefaultProviderEndpoint = <TError = void, TContext = unknown
 };
 
 /**
- * @summary Update provider operational status.
+ * Update provider operational status.
+ * @summary Update provider status.
  */
 export const updateProviderStatusEndpoint = (
   id: string,
@@ -2120,7 +2241,7 @@ export const updateProviderStatusEndpoint = (
 };
 
 export const getUpdateProviderStatusEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2158,12 +2279,12 @@ export type UpdateProviderStatusEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateProviderStatusEndpoint>>
 >;
 export type UpdateProviderStatusEndpointMutationBody = UpdateProviderStatusRequest;
-export type UpdateProviderStatusEndpointMutationError = void;
+export type UpdateProviderStatusEndpointMutationError = void | void;
 
 /**
- * @summary Update provider operational status.
+ * @summary Update provider status.
  */
-export const useUpdateProviderStatusEndpoint = <TError = void, TContext = unknown>(
+export const useUpdateProviderStatusEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateProviderStatusEndpoint>>,
@@ -2184,6 +2305,10 @@ export const useUpdateProviderStatusEndpoint = <TError = void, TContext = unknow
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * List all available provider types that can be configured.
+ * @summary List available providers.
+ */
 export const getAvailableProvidersEndpoint = (signal?: AbortSignal) => {
   return customAxios<AvailableProvidersResponse>({
     url: `/api/channels/providers/available`,
@@ -2273,6 +2398,9 @@ export function useGetAvailableProvidersEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List available providers.
+ */
 
 export function useGetAvailableProvidersEndpoint<
   TData = Awaited<ReturnType<typeof getAvailableProvidersEndpoint>>,
@@ -2296,6 +2424,10 @@ export function useGetAvailableProvidersEndpoint<
   return query;
 }
 
+/**
+ * Get the configuration schema for a specific provider type.
+ * @summary Get provider configuration schema.
+ */
 export const getProviderSchemaEndpoint = (providerType: ProviderType, signal?: AbortSignal) => {
   return customAxios<ProviderDefinitionResponse>({
     url: `/api/channels/providers/available/${providerType}`,
@@ -2310,7 +2442,7 @@ export const getGetProviderSchemaEndpointQueryKey = (providerType?: ProviderType
 
 export const getGetProviderSchemaEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   providerType: ProviderType,
   options?: {
@@ -2337,11 +2469,11 @@ export const getGetProviderSchemaEndpointQueryOptions = <
 export type GetProviderSchemaEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProviderSchemaEndpoint>>
 >;
-export type GetProviderSchemaEndpointQueryError = unknown;
+export type GetProviderSchemaEndpointQueryError = void;
 
 export function useGetProviderSchemaEndpoint<
   TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   providerType: ProviderType,
   options: {
@@ -2361,7 +2493,7 @@ export function useGetProviderSchemaEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetProviderSchemaEndpoint<
   TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   providerType: ProviderType,
   options?: {
@@ -2381,7 +2513,7 @@ export function useGetProviderSchemaEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetProviderSchemaEndpoint<
   TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   providerType: ProviderType,
   options?: {
@@ -2391,10 +2523,13 @@ export function useGetProviderSchemaEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get provider configuration schema.
+ */
 
 export function useGetProviderSchemaEndpoint<
   TData = Awaited<ReturnType<typeof getProviderSchemaEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   providerType: ProviderType,
   options?: {
@@ -2416,7 +2551,8 @@ export function useGetProviderSchemaEndpoint<
 }
 
 /**
- * @summary Create a channel for an organization.
+ * Create a channel for an organization.
+ * @summary Create a channel.
  */
 export const createChannelEndpoint = (
   createChannelRequest: CreateChannelRequest,
@@ -2473,7 +2609,7 @@ export type CreateChannelEndpointMutationBody = CreateChannelRequest;
 export type CreateChannelEndpointMutationError = void;
 
 /**
- * @summary Create a channel for an organization.
+ * @summary Create a channel.
  */
 export const useCreateChannelEndpoint = <TError = void, TContext = unknown>(
   options?: {
@@ -2496,6 +2632,10 @@ export const useCreateChannelEndpoint = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * List all channels for an organization.
+ * @summary List channels.
+ */
 export const listChannelsEndpoint = (params?: ListChannelsEndpointParams, signal?: AbortSignal) => {
   return customAxios<ChannelResponse[]>({ url: `/api/channels`, method: 'GET', params, signal });
 };
@@ -2586,6 +2726,9 @@ export function useListChannelsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List channels.
+ */
 
 export function useListChannelsEndpoint<
   TData = Awaited<ReturnType<typeof listChannelsEndpoint>>,
@@ -2611,6 +2754,7 @@ export function useListChannelsEndpoint<
 }
 
 /**
+ * Delete a channel by ID.
  * @summary Delete a channel.
  */
 export const deleteChannelEndpoint = (id: string, deleteChannelRequest: DeleteChannelRequest) => {
@@ -2623,7 +2767,7 @@ export const deleteChannelEndpoint = (id: string, deleteChannelRequest: DeleteCh
 };
 
 export const getDeleteChannelEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2661,12 +2805,12 @@ export type DeleteChannelEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteChannelEndpoint>>
 >;
 export type DeleteChannelEndpointMutationBody = DeleteChannelRequest;
-export type DeleteChannelEndpointMutationError = void;
+export type DeleteChannelEndpointMutationError = void | void;
 
 /**
  * @summary Delete a channel.
  */
-export const useDeleteChannelEndpoint = <TError = void, TContext = unknown>(
+export const useDeleteChannelEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteChannelEndpoint>>,
@@ -2687,6 +2831,10 @@ export const useDeleteChannelEndpoint = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Retrieve a single channel by its unique identifier.
+ * @summary Get a channel by ID.
+ */
 export const getChannelByIdEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<ChannelResponse>({ url: `/api/channels/${id}`, method: 'GET', signal });
 };
@@ -2697,7 +2845,7 @@ export const getGetChannelByIdEndpointQueryKey = (id?: string) => {
 
 export const getGetChannelByIdEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getChannelByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -2723,11 +2871,11 @@ export const getGetChannelByIdEndpointQueryOptions = <
 export type GetChannelByIdEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getChannelByIdEndpoint>>
 >;
-export type GetChannelByIdEndpointQueryError = void;
+export type GetChannelByIdEndpointQueryError = void | void;
 
 export function useGetChannelByIdEndpoint<
   TData = Awaited<ReturnType<typeof getChannelByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options: {
@@ -2747,7 +2895,7 @@ export function useGetChannelByIdEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetChannelByIdEndpoint<
   TData = Awaited<ReturnType<typeof getChannelByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -2767,7 +2915,7 @@ export function useGetChannelByIdEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetChannelByIdEndpoint<
   TData = Awaited<ReturnType<typeof getChannelByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -2777,10 +2925,13 @@ export function useGetChannelByIdEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get a channel by ID.
+ */
 
 export function useGetChannelByIdEndpoint<
   TData = Awaited<ReturnType<typeof getChannelByIdEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -2802,6 +2953,7 @@ export function useGetChannelByIdEndpoint<
 }
 
 /**
+ * Update a channel configuration.
  * @summary Update a channel.
  */
 export const updateChannelEndpoint = (id: string, updateChannelRequest: UpdateChannelRequest) => {
@@ -2814,7 +2966,7 @@ export const updateChannelEndpoint = (id: string, updateChannelRequest: UpdateCh
 };
 
 export const getUpdateChannelEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2852,12 +3004,12 @@ export type UpdateChannelEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateChannelEndpoint>>
 >;
 export type UpdateChannelEndpointMutationBody = UpdateChannelRequest;
-export type UpdateChannelEndpointMutationError = void;
+export type UpdateChannelEndpointMutationError = void | void;
 
 /**
  * @summary Update a channel.
  */
-export const useUpdateChannelEndpoint = <TError = void, TContext = unknown>(
+export const useUpdateChannelEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateChannelEndpoint>>,
@@ -2878,6 +3030,10 @@ export const useUpdateChannelEndpoint = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Update an existing template by ID.
+ * @summary Update a template.
+ */
 export const updateTemplateEndpoint = (
   id: string,
   templateUpdateRequest: TemplateUpdateRequest,
@@ -2891,7 +3047,7 @@ export const updateTemplateEndpoint = (
 };
 
 export const getUpdateTemplateEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2929,9 +3085,12 @@ export type UpdateTemplateEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateTemplateEndpoint>>
 >;
 export type UpdateTemplateEndpointMutationBody = TemplateUpdateRequest;
-export type UpdateTemplateEndpointMutationError = void;
+export type UpdateTemplateEndpointMutationError = void | void;
 
-export const useUpdateTemplateEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Update a template.
+ */
+export const useUpdateTemplateEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateTemplateEndpoint>>,
@@ -2952,98 +3111,118 @@ export const useUpdateTemplateEndpoint = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 
-export const getTemplateById = (id: string, signal?: AbortSignal) => {
+/**
+ * Retrieve a single template by its unique identifier.
+ * @summary Get a template by ID.
+ */
+export const getTemplateByIdEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<TemplateResponse>({ url: `/api/templates/${id}`, method: 'GET', signal });
 };
 
-export const getGetTemplateByIdQueryKey = (id?: string) => {
+export const getGetTemplateByIdEndpointQueryKey = (id?: string) => {
   return [`/api/templates/${id}`] as const;
 };
 
-export const getGetTemplateByIdQueryOptions = <
-  TData = Awaited<ReturnType<typeof getTemplateById>>,
-  TError = void,
+export const getGetTemplateByIdEndpointQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
+  TError = void | void,
 >(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTemplateById>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTemplateByIdEndpoint>>, TError, TData>
+    >;
   },
 ) => {
   const { query: queryOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetTemplateByIdQueryKey(id);
+  const queryKey = queryOptions?.queryKey ?? getGetTemplateByIdEndpointQueryKey(id);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTemplateById>>> = ({ signal }) =>
-    getTemplateById(id, signal);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTemplateByIdEndpoint>>> = ({
+    signal,
+  }) => getTemplateByIdEndpoint(id, signal);
 
   return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getTemplateById>>,
+    Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetTemplateByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getTemplateById>>>;
-export type GetTemplateByIdQueryError = void;
+export type GetTemplateByIdEndpointQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTemplateByIdEndpoint>>
+>;
+export type GetTemplateByIdEndpointQueryError = void | void;
 
-export function useGetTemplateById<
-  TData = Awaited<ReturnType<typeof getTemplateById>>,
-  TError = void,
+export function useGetTemplateByIdEndpoint<
+  TData = Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
+  TError = void | void,
 >(
   id: string,
   options: {
-    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTemplateById>>, TError, TData>> &
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTemplateByIdEndpoint>>, TError, TData>
+    > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getTemplateById>>,
+          Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
           TError,
-          Awaited<ReturnType<typeof getTemplateById>>
+          Awaited<ReturnType<typeof getTemplateByIdEndpoint>>
         >,
         'initialData'
       >;
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetTemplateById<
-  TData = Awaited<ReturnType<typeof getTemplateById>>,
-  TError = void,
+export function useGetTemplateByIdEndpoint<
+  TData = Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
+  TError = void | void,
 >(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTemplateById>>, TError, TData>> &
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTemplateByIdEndpoint>>, TError, TData>
+    > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getTemplateById>>,
+          Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
           TError,
-          Awaited<ReturnType<typeof getTemplateById>>
+          Awaited<ReturnType<typeof getTemplateByIdEndpoint>>
         >,
         'initialData'
       >;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-export function useGetTemplateById<
-  TData = Awaited<ReturnType<typeof getTemplateById>>,
-  TError = void,
+export function useGetTemplateByIdEndpoint<
+  TData = Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
+  TError = void | void,
 >(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTemplateById>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTemplateByIdEndpoint>>, TError, TData>
+    >;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get a template by ID.
+ */
 
-export function useGetTemplateById<
-  TData = Awaited<ReturnType<typeof getTemplateById>>,
-  TError = void,
+export function useGetTemplateByIdEndpoint<
+  TData = Awaited<ReturnType<typeof getTemplateByIdEndpoint>>,
+  TError = void | void,
 >(
   id: string,
   options?: {
-    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getTemplateById>>, TError, TData>>;
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getTemplateByIdEndpoint>>, TError, TData>
+    >;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGetTemplateByIdQueryOptions(id, options);
+  const queryOptions = getGetTemplateByIdEndpointQueryOptions(id, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -3054,6 +3233,10 @@ export function useGetTemplateById<
   return query;
 }
 
+/**
+ * Delete a template by ID.
+ * @summary Delete a template.
+ */
 export const deleteTemplateEndpoint = (
   id: string,
   deleteTemplateRequest: DeleteTemplateRequest,
@@ -3067,7 +3250,7 @@ export const deleteTemplateEndpoint = (
 };
 
 export const getDeleteTemplateEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -3105,9 +3288,12 @@ export type DeleteTemplateEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteTemplateEndpoint>>
 >;
 export type DeleteTemplateEndpointMutationBody = DeleteTemplateRequest;
-export type DeleteTemplateEndpointMutationError = void;
+export type DeleteTemplateEndpointMutationError = void | void;
 
-export const useDeleteTemplateEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Delete a template.
+ */
+export const useDeleteTemplateEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteTemplateEndpoint>>,
@@ -3130,6 +3316,7 @@ export const useDeleteTemplateEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Resolve a template by (Id or Code) within an organization/channel/language with optional fallback.
+ * @summary Resolve a template.
  */
 export const resolveTemplateEndpoint = (resolveRequest: ResolveRequest, signal?: AbortSignal) => {
   return customAxios<TemplateResponse>({
@@ -3142,7 +3329,7 @@ export const resolveTemplateEndpoint = (resolveRequest: ResolveRequest, signal?:
 };
 
 export const getResolveTemplateEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -3180,9 +3367,12 @@ export type ResolveTemplateEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof resolveTemplateEndpoint>>
 >;
 export type ResolveTemplateEndpointMutationBody = ResolveRequest;
-export type ResolveTemplateEndpointMutationError = void;
+export type ResolveTemplateEndpointMutationError = void | void;
 
-export const useResolveTemplateEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Resolve a template.
+ */
+export const useResolveTemplateEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof resolveTemplateEndpoint>>,
@@ -3203,6 +3393,10 @@ export const useResolveTemplateEndpoint = <TError = void, TContext = unknown>(
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Retrieve a paged list of templates for an organization.
+ * @summary List templates.
+ */
 export const getTemplateListEndpoint = (
   params?: GetTemplateListEndpointParams,
   signal?: AbortSignal,
@@ -3302,6 +3496,9 @@ export function useGetTemplateListEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List templates.
+ */
 
 export function useGetTemplateListEndpoint<
   TData = Awaited<ReturnType<typeof getTemplateListEndpoint>>,
@@ -3327,7 +3524,8 @@ export function useGetTemplateListEndpoint<
 }
 
 /**
- * @summary Create a template
+ * Create a new notification template for an organization.
+ * @summary Create a template.
  */
 export const createTemplateEndpoint = (
   templateCreateRequest: TemplateCreateRequest,
@@ -3384,7 +3582,7 @@ export type CreateTemplateEndpointMutationBody = TemplateCreateRequest;
 export type CreateTemplateEndpointMutationError = void;
 
 /**
- * @summary Create a template
+ * @summary Create a template.
  */
 export const useCreateTemplateEndpoint = <TError = void, TContext = unknown>(
   options?: {
@@ -3409,6 +3607,7 @@ export const useCreateTemplateEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * List registered devices for a contact.
+ * @summary List devices.
  */
 export const listDevicesEndpoint = (params: ListDevicesEndpointParams, signal?: AbortSignal) => {
   return customAxios<ListDevicesResponse>({ url: `/api/devices`, method: 'GET', params, signal });
@@ -3500,6 +3699,9 @@ export function useListDevicesEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List devices.
+ */
 
 export function useListDevicesEndpoint<
   TData = Awaited<ReturnType<typeof listDevicesEndpoint>>,
@@ -3526,6 +3728,7 @@ export function useListDevicesEndpoint<
 
 /**
  * Register or update a device token for a contact.
+ * @summary Register a device.
  */
 export const registerDeviceEndpoint = (
   registerDeviceRequest: RegisterDeviceRequest,
@@ -3581,6 +3784,9 @@ export type RegisterDeviceEndpointMutationResult = NonNullable<
 export type RegisterDeviceEndpointMutationBody = RegisterDeviceRequest;
 export type RegisterDeviceEndpointMutationError = ErrorResponse | void;
 
+/**
+ * @summary Register a device.
+ */
 export const useRegisterDeviceEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -3604,6 +3810,7 @@ export const useRegisterDeviceEndpoint = <TError = ErrorResponse | void, TContex
 
 /**
  * Unregister (deactivate) a device.
+ * @summary Unregister a device.
  */
 export const unregisterDeviceEndpoint = (
   id: string,
@@ -3618,7 +3825,7 @@ export const unregisterDeviceEndpoint = (
 };
 
 export const getUnregisterDeviceEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -3656,9 +3863,12 @@ export type UnregisterDeviceEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof unregisterDeviceEndpoint>>
 >;
 export type UnregisterDeviceEndpointMutationBody = UnregisterDeviceRequest;
-export type UnregisterDeviceEndpointMutationError = void;
+export type UnregisterDeviceEndpointMutationError = void | void;
 
-export const useUnregisterDeviceEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Unregister a device.
+ */
+export const useUnregisterDeviceEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof unregisterDeviceEndpoint>>,
@@ -3681,6 +3891,7 @@ export const useUnregisterDeviceEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Delete a contact within an organization.
+ * @summary Delete a contact.
  */
 export const deleteContactEndpoint = (
   deleteContactRequest: DeleteContactRequest,
@@ -3696,7 +3907,7 @@ export const deleteContactEndpoint = (
 };
 
 export const getDeleteContactEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -3734,9 +3945,12 @@ export type DeleteContactEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteContactEndpoint>>
 >;
 export type DeleteContactEndpointMutationBody = DeleteContactRequest;
-export type DeleteContactEndpointMutationError = void;
+export type DeleteContactEndpointMutationError = void | void;
 
-export const useDeleteContactEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Delete a contact.
+ */
+export const useDeleteContactEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteContactEndpoint>>,
@@ -3759,6 +3973,7 @@ export const useDeleteContactEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Get a contact by id within an organization.
+ * @summary Get a contact by ID.
  */
 export const getContactEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<ContactRecord>({ url: `/api/contacts/${id}`, method: 'GET', signal });
@@ -3770,7 +3985,7 @@ export const getGetContactEndpointQueryKey = (id?: string) => {
 
 export const getGetContactEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getContactEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -3794,11 +4009,11 @@ export const getGetContactEndpointQueryOptions = <
 export type GetContactEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getContactEndpoint>>
 >;
-export type GetContactEndpointQueryError = void;
+export type GetContactEndpointQueryError = void | void;
 
 export function useGetContactEndpoint<
   TData = Awaited<ReturnType<typeof getContactEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options: {
@@ -3816,7 +4031,7 @@ export function useGetContactEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetContactEndpoint<
   TData = Awaited<ReturnType<typeof getContactEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -3836,7 +4051,7 @@ export function useGetContactEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetContactEndpoint<
   TData = Awaited<ReturnType<typeof getContactEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -3844,10 +4059,13 @@ export function useGetContactEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get a contact by ID.
+ */
 
 export function useGetContactEndpoint<
   TData = Awaited<ReturnType<typeof getContactEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -3868,6 +4086,7 @@ export function useGetContactEndpoint<
 
 /**
  * Update an existing contact within an organization.
+ * @summary Update a contact.
  */
 export const updateContactEndpoint = (id: string, updateContactRequest: UpdateContactRequest) => {
   return customAxios<ContactRecord>({
@@ -3919,6 +4138,9 @@ export type UpdateContactEndpointMutationResult = NonNullable<
 export type UpdateContactEndpointMutationBody = UpdateContactRequest;
 export type UpdateContactEndpointMutationError = void;
 
+/**
+ * @summary Update a contact.
+ */
 export const useUpdateContactEndpoint = <TError = void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -3942,6 +4164,7 @@ export const useUpdateContactEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * List contacts for an organization with optional search.
+ * @summary List contacts.
  */
 export const listContactsEndpoint = (params: ListContactsEndpointParams, signal?: AbortSignal) => {
   return customAxios<ListContactsResponse>({ url: `/api/contacts`, method: 'GET', params, signal });
@@ -4033,6 +4256,9 @@ export function useListContactsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List contacts.
+ */
 
 export function useListContactsEndpoint<
   TData = Awaited<ReturnType<typeof listContactsEndpoint>>,
@@ -4059,6 +4285,7 @@ export function useListContactsEndpoint<
 
 /**
  * Create or update a contact within an organization.
+ * @summary Register a contact.
  */
 export const registerContactEndpoint = (
   contactUpsertRequest: ContactUpsertRequest,
@@ -4114,6 +4341,9 @@ export type RegisterContactEndpointMutationResult = NonNullable<
 export type RegisterContactEndpointMutationBody = ContactUpsertRequest;
 export type RegisterContactEndpointMutationError = void;
 
+/**
+ * @summary Register a contact.
+ */
 export const useRegisterContactEndpoint = <TError = void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -4137,6 +4367,7 @@ export const useRegisterContactEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Include or exclude a contact in a static audience.
+ * @summary Add audience member.
  */
 export const addAudienceMemberEndpoint = (
   id: string,
@@ -4153,7 +4384,7 @@ export const addAudienceMemberEndpoint = (
 };
 
 export const getAddAudienceMemberEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -4191,9 +4422,12 @@ export type AddAudienceMemberEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof addAudienceMemberEndpoint>>
 >;
 export type AddAudienceMemberEndpointMutationBody = AddAudienceMemberRequest;
-export type AddAudienceMemberEndpointMutationError = void;
+export type AddAudienceMemberEndpointMutationError = void | void;
 
-export const useAddAudienceMemberEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Add audience member.
+ */
+export const useAddAudienceMemberEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof addAudienceMemberEndpoint>>,
@@ -4216,6 +4450,7 @@ export const useAddAudienceMemberEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Create an audience (static list or dynamic segment).
+ * @summary Create an audience.
  */
 export const createAudienceEndpoint = (
   audienceCreateRequest: AudienceCreateRequest,
@@ -4271,6 +4506,9 @@ export type CreateAudienceEndpointMutationResult = NonNullable<
 export type CreateAudienceEndpointMutationBody = AudienceCreateRequest;
 export type CreateAudienceEndpointMutationError = void;
 
+/**
+ * @summary Create an audience.
+ */
 export const useCreateAudienceEndpoint = <TError = void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -4294,6 +4532,7 @@ export const useCreateAudienceEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * List audiences for an organization.
+ * @summary List audiences.
  */
 export const listAudiencesEndpoint = (
   params: ListAudiencesEndpointParams,
@@ -4393,6 +4632,9 @@ export function useListAudiencesEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary List audiences.
+ */
 
 export function useListAudiencesEndpoint<
   TData = Awaited<ReturnType<typeof listAudiencesEndpoint>>,
@@ -4419,6 +4661,7 @@ export function useListAudiencesEndpoint<
 
 /**
  * Delete an audience group.
+ * @summary Delete an audience.
  */
 export const deleteAudienceEndpoint = (
   deleteAudienceRequest: DeleteAudienceRequest,
@@ -4434,7 +4677,7 @@ export const deleteAudienceEndpoint = (
 };
 
 export const getDeleteAudienceEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -4472,9 +4715,12 @@ export type DeleteAudienceEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteAudienceEndpoint>>
 >;
 export type DeleteAudienceEndpointMutationBody = DeleteAudienceRequest;
-export type DeleteAudienceEndpointMutationError = void;
+export type DeleteAudienceEndpointMutationError = void | void;
 
-export const useDeleteAudienceEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Delete an audience.
+ */
+export const useDeleteAudienceEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteAudienceEndpoint>>,
@@ -4497,6 +4743,7 @@ export const useDeleteAudienceEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Get contacts belonging to an audience (static list or dynamic segment).
+ * @summary Get audience contacts.
  */
 export const getAudienceContactsEndpoint = (
   id: string,
@@ -4520,7 +4767,7 @@ export const getGetAudienceContactsEndpointQueryKey = (
 
 export const getGetAudienceContactsEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getAudienceContactsEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   params: GetAudienceContactsEndpointParams,
@@ -4548,11 +4795,11 @@ export const getGetAudienceContactsEndpointQueryOptions = <
 export type GetAudienceContactsEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getAudienceContactsEndpoint>>
 >;
-export type GetAudienceContactsEndpointQueryError = void;
+export type GetAudienceContactsEndpointQueryError = void | void;
 
 export function useGetAudienceContactsEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceContactsEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   params: GetAudienceContactsEndpointParams,
@@ -4573,7 +4820,7 @@ export function useGetAudienceContactsEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetAudienceContactsEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceContactsEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   params: GetAudienceContactsEndpointParams,
@@ -4594,7 +4841,7 @@ export function useGetAudienceContactsEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetAudienceContactsEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceContactsEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   params: GetAudienceContactsEndpointParams,
@@ -4605,10 +4852,13 @@ export function useGetAudienceContactsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get audience contacts.
+ */
 
 export function useGetAudienceContactsEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceContactsEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   params: GetAudienceContactsEndpointParams,
@@ -4632,6 +4882,7 @@ export function useGetAudienceContactsEndpoint<
 
 /**
  * Get an audience by id within an organization.
+ * @summary Get an audience by ID.
  */
 export const getAudienceEndpoint = (id: string, signal?: AbortSignal) => {
   return customAxios<AudienceGroupDto>({ url: `/api/audiences/${id}`, method: 'GET', signal });
@@ -4643,7 +4894,7 @@ export const getGetAudienceEndpointQueryKey = (id?: string) => {
 
 export const getGetAudienceEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getAudienceEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -4669,11 +4920,11 @@ export const getGetAudienceEndpointQueryOptions = <
 export type GetAudienceEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getAudienceEndpoint>>
 >;
-export type GetAudienceEndpointQueryError = void;
+export type GetAudienceEndpointQueryError = void | void;
 
 export function useGetAudienceEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options: {
@@ -4693,7 +4944,7 @@ export function useGetAudienceEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetAudienceEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -4713,7 +4964,7 @@ export function useGetAudienceEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetAudienceEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -4723,10 +4974,13 @@ export function useGetAudienceEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get an audience by ID.
+ */
 
 export function useGetAudienceEndpoint<
   TData = Awaited<ReturnType<typeof getAudienceEndpoint>>,
-  TError = void,
+  TError = void | void,
 >(
   id: string,
   options?: {
@@ -4749,6 +5003,7 @@ export function useGetAudienceEndpoint<
 
 /**
  * Update an audience group.
+ * @summary Update an audience.
  */
 export const updateAudienceEndpoint = (
   id: string,
@@ -4763,7 +5018,7 @@ export const updateAudienceEndpoint = (
 };
 
 export const getUpdateAudienceEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -4801,9 +5056,12 @@ export type UpdateAudienceEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateAudienceEndpoint>>
 >;
 export type UpdateAudienceEndpointMutationBody = UpdateAudienceRequest;
-export type UpdateAudienceEndpointMutationError = void;
+export type UpdateAudienceEndpointMutationError = void | void;
 
-export const useUpdateAudienceEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Update an audience.
+ */
+export const useUpdateAudienceEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateAudienceEndpoint>>,
@@ -4826,6 +5084,7 @@ export const useUpdateAudienceEndpoint = <TError = void, TContext = unknown>(
 
 /**
  * Remove a contact from a static audience.
+ * @summary Remove audience member.
  */
 export const removeAudienceMemberEndpoint = (
   removeAudienceMemberRequest: RemoveAudienceMemberRequest,
@@ -4841,7 +5100,7 @@ export const removeAudienceMemberEndpoint = (
 };
 
 export const getRemoveAudienceMemberEndpointMutationOptions = <
-  TError = void,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -4879,9 +5138,12 @@ export type RemoveAudienceMemberEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof removeAudienceMemberEndpoint>>
 >;
 export type RemoveAudienceMemberEndpointMutationBody = RemoveAudienceMemberRequest;
-export type RemoveAudienceMemberEndpointMutationError = void;
+export type RemoveAudienceMemberEndpointMutationError = void | void;
 
-export const useRemoveAudienceMemberEndpoint = <TError = void, TContext = unknown>(
+/**
+ * @summary Remove audience member.
+ */
+export const useRemoveAudienceMemberEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof removeAudienceMemberEndpoint>>,
@@ -4902,6 +5164,10 @@ export const useRemoveAudienceMemberEndpoint = <TError = void, TContext = unknow
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Push a real-time event to connected subscription clients.
+ * @summary Push a real-time notification.
+ */
 export const pushNotificationEndpoint = (
   pushNotificationRequest: PushNotificationRequest,
   signal?: AbortSignal,
@@ -4956,6 +5222,9 @@ export type PushNotificationEndpointMutationResult = NonNullable<
 export type PushNotificationEndpointMutationBody = PushNotificationRequest;
 export type PushNotificationEndpointMutationError = ErrorResponse | void;
 
+/**
+ * @summary Push a real-time notification.
+ */
 export const usePushNotificationEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -4977,6 +5246,10 @@ export const usePushNotificationEndpoint = <TError = ErrorResponse | void, TCont
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Generate a new token for a subscription client.
+ * @summary Generate a subscription token.
+ */
 export const generateTokenEndpoint = (
   generateTokenRequest: GenerateTokenRequest,
   signal?: AbortSignal,
@@ -5031,6 +5304,9 @@ export type GenerateTokenEndpointMutationResult = NonNullable<
 export type GenerateTokenEndpointMutationBody = GenerateTokenRequest;
 export type GenerateTokenEndpointMutationError = ErrorResponse | void;
 
+/**
+ * @summary Generate a subscription token.
+ */
 export const useGenerateTokenEndpoint = <TError = ErrorResponse | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -5052,6 +5328,10 @@ export const useGenerateTokenEndpoint = <TError = ErrorResponse | void, TContext
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Mark a notification as read for a subscription client.
+ * @summary Consume a client notification.
+ */
 export const consumeClientNotificationEndpoint = (
   token: string,
   id: string,
@@ -5065,7 +5345,7 @@ export const consumeClientNotificationEndpoint = (
 };
 
 export const getConsumeClientNotificationEndpointMutationOptions = <
-  TError = unknown,
+  TError = void | void,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -5103,9 +5383,12 @@ export type ConsumeClientNotificationEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>
 >;
 
-export type ConsumeClientNotificationEndpointMutationError = unknown;
+export type ConsumeClientNotificationEndpointMutationError = void | void;
 
-export const useConsumeClientNotificationEndpoint = <TError = unknown, TContext = unknown>(
+/**
+ * @summary Consume a client notification.
+ */
+export const useConsumeClientNotificationEndpoint = <TError = void | void, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof consumeClientNotificationEndpoint>>,
@@ -5126,6 +5409,10 @@ export const useConsumeClientNotificationEndpoint = <TError = unknown, TContext 
   return useMutation(mutationOptions, queryClient);
 };
 
+/**
+ * Count unread notifications for a subscription client.
+ * @summary Get client notification count.
+ */
 export const getClientNotificationCountEndpoint = (token: string, signal?: AbortSignal) => {
   return customAxios<ClientNotificationCountResponse>({
     url: `/api/client/${token}/notifications/count`,
@@ -5140,7 +5427,7 @@ export const getGetClientNotificationCountEndpointQueryKey = (token?: string) =>
 
 export const getGetClientNotificationCountEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   options?: {
@@ -5167,11 +5454,11 @@ export const getGetClientNotificationCountEndpointQueryOptions = <
 export type GetClientNotificationCountEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>
 >;
-export type GetClientNotificationCountEndpointQueryError = unknown;
+export type GetClientNotificationCountEndpointQueryError = void;
 
 export function useGetClientNotificationCountEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   options: {
@@ -5191,7 +5478,7 @@ export function useGetClientNotificationCountEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetClientNotificationCountEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   options?: {
@@ -5211,7 +5498,7 @@ export function useGetClientNotificationCountEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetClientNotificationCountEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   options?: {
@@ -5221,10 +5508,13 @@ export function useGetClientNotificationCountEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get client notification count.
+ */
 
 export function useGetClientNotificationCountEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationCountEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   options?: {
@@ -5245,6 +5535,10 @@ export function useGetClientNotificationCountEndpoint<
   return query;
 }
 
+/**
+ * Retrieve notifications for a subscription client.
+ * @summary Get client notifications.
+ */
 export const getClientNotificationsEndpoint = (
   token: string,
   params: GetClientNotificationsEndpointParams,
@@ -5267,7 +5561,7 @@ export const getGetClientNotificationsEndpointQueryKey = (
 
 export const getGetClientNotificationsEndpointQueryOptions = <
   TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   params: GetClientNotificationsEndpointParams,
@@ -5296,11 +5590,11 @@ export const getGetClientNotificationsEndpointQueryOptions = <
 export type GetClientNotificationsEndpointQueryResult = NonNullable<
   Awaited<ReturnType<typeof getClientNotificationsEndpoint>>
 >;
-export type GetClientNotificationsEndpointQueryError = unknown;
+export type GetClientNotificationsEndpointQueryError = void;
 
 export function useGetClientNotificationsEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   params: GetClientNotificationsEndpointParams,
@@ -5321,7 +5615,7 @@ export function useGetClientNotificationsEndpoint<
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetClientNotificationsEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   params: GetClientNotificationsEndpointParams,
@@ -5342,7 +5636,7 @@ export function useGetClientNotificationsEndpoint<
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetClientNotificationsEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   params: GetClientNotificationsEndpointParams,
@@ -5353,10 +5647,13 @@ export function useGetClientNotificationsEndpoint<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+/**
+ * @summary Get client notifications.
+ */
 
 export function useGetClientNotificationsEndpoint<
   TData = Awaited<ReturnType<typeof getClientNotificationsEndpoint>>,
-  TError = unknown,
+  TError = void,
 >(
   token: string,
   params: GetClientNotificationsEndpointParams,

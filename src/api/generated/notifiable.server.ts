@@ -52,6 +52,7 @@ import type {
   ListProvidersEndpointParams,
   MakeDefaultProviderRequest,
   NotificationListResponse,
+  NotificationStatusResponse,
   OrganizationResponse,
   PagedResultOfAudienceGroupDto,
   PagedResultOfContactRecord,
@@ -80,6 +81,10 @@ import { serverAxios } from '../http';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 export const getNotifiableAPI = () => {
+  /**
+   * Create a new organization. The calling user becomes the owner.
+   * @summary Create an organization.
+   */
   const createOrganizationEndpoint = (
     createOrganizationRequest: CreateOrganizationRequest,
     options?: SecondParameter<typeof serverAxios<OrganizationResponse>>,
@@ -95,6 +100,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * List all organizations the current user belongs to.
+   * @summary List organizations.
+   */
   const listOrganizationsEndpoint = (
     options?: SecondParameter<typeof serverAxios<OrganizationResponse[]>>,
   ) => {
@@ -104,12 +113,16 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Permanently delete an organization and remove all memberships.
+   * @summary Delete an organization.
+   */
   const deleteOrganizationEndpoint = (
     id: string,
     deleteOrganizationRequest: DeleteOrganizationRequest,
-    options?: SecondParameter<typeof serverAxios<boolean>>,
+    options?: SecondParameter<typeof serverAxios<void>>,
   ) => {
-    return serverAxios<boolean>(
+    return serverAxios<void>(
       {
         url: `/api/identity/organizations/${id}`,
         method: 'DELETE',
@@ -120,6 +133,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Update an organization's name or timezone.
+   * @summary Update an organization.
+   */
   const updateOrganizationEndpoint = (
     id: string,
     updateOrganizationRequest: UpdateOrganizationRequest,
@@ -136,6 +153,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Get the organization membership for the current user.
+   * @summary Get my organization.
+   */
   const getMyOrganizationEndpoint = (
     options?: SecondParameter<typeof serverAxios<OrganizationResponse>>,
   ) => {
@@ -145,6 +166,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Create a new API key for the organization. The raw key is only returned once.
+   * @summary Create an API key.
+   */
   const createApiKeyEndpoint = (
     createApiKeyRequest: CreateApiKeyRequest,
     options?: SecondParameter<typeof serverAxios<CreateApiKeyResponse>>,
@@ -160,10 +185,18 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * List all API keys for the organization.
+   * @summary List API keys.
+   */
   const listApiKeysEndpoint = (options?: SecondParameter<typeof serverAxios<ApiKeyResponse[]>>) => {
     return serverAxios<ApiKeyResponse[]>({ url: `/api/identity/api-keys`, method: 'GET' }, options);
   };
 
+  /**
+   * Retrieve a single API key by its unique identifier.
+   * @summary Get an API key by ID.
+   */
   const getApiKeyEndpoint = (
     id: string,
     options?: SecondParameter<typeof serverAxios<ApiKeyResponse>>,
@@ -174,6 +207,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Permanently revoke an API key by ID.
+   * @summary Revoke an API key.
+   */
   const revokeApiKeyEndpoint = (
     id: string,
     revokeApiKeyRequest: RevokeApiKeyRequest,
@@ -192,6 +229,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Fetch a notification for a user and mark it as read.
+   * @summary Consume an internal notification.
    */
   const consumeInternalNotificationEndpoint = (
     id: string,
@@ -211,6 +249,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Count unread internal notifications for a user.
+   * @summary Count unread internal notifications.
    */
   const countInternalNotificationsEndpoint = (
     params?: CountInternalNotificationsEndpointParams,
@@ -224,6 +263,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * List internal notifications for a user.
+   * @summary List internal notifications.
    */
   const listInternalNotificationsEndpoint = (
     params: ListInternalNotificationsEndpointParams,
@@ -241,13 +281,17 @@ export const getNotifiableAPI = () => {
    */
   const getNotificationStatusEndpoint = (
     id: string,
-    options?: SecondParameter<typeof serverAxios<void>>,
+    options?: SecondParameter<typeof serverAxios<NotificationStatusResponse>>,
   ) => {
-    return serverAxios<void>({ url: `/api/notifications/${id}`, method: 'GET' }, options);
+    return serverAxios<NotificationStatusResponse>(
+      { url: `/api/notifications/${id}`, method: 'GET' },
+      options,
+    );
   };
 
   /**
-   * List notifications for the current organization with optional filtering.
+   * Returns a paged list of notifications that belong to the organization identified by the X-Organization-Id header. Supports filtering by title, body, status, channel, and read state.
+   * @summary Retrieve notifications for the selected organization.
    */
   const getNotificationsListEndpoint = (
     params: GetNotificationsListEndpointParams,
@@ -278,6 +322,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Create a new provider configuration for an organization channel.
+   * @summary Create a provider.
+   */
   const createProviderEndpoint = (
     createProviderRequest: CreateProviderRequest,
     options?: SecondParameter<typeof serverAxios<ProviderResponse>>,
@@ -293,6 +341,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * List all providers for an organization.
+   * @summary List providers.
+   */
   const listProvidersEndpoint = (
     params?: ListProvidersEndpointParams,
     options?: SecondParameter<typeof serverAxios<ProviderResponse[]>>,
@@ -303,6 +355,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Delete a provider by ID.
+   * @summary Delete a provider.
+   */
   const deleteProviderEndpoint = (
     id: string,
     deleteProviderRequest: DeleteProviderRequest,
@@ -319,6 +375,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Retrieve a single provider by its unique identifier.
+   * @summary Get a provider by ID.
+   */
   const getProviderByIdEndpoint = (
     id: string,
     options?: SecondParameter<typeof serverAxios<ProviderResponse>>,
@@ -326,6 +386,10 @@ export const getNotifiableAPI = () => {
     return serverAxios<ProviderResponse>({ url: `/api/providers/${id}`, method: 'GET' }, options);
   };
 
+  /**
+   * Update a provider configuration.
+   * @summary Update a provider.
+   */
   const updateProviderEndpoint = (
     id: string,
     updateProviderRequest: UpdateProviderRequest,
@@ -343,7 +407,8 @@ export const getNotifiableAPI = () => {
   };
 
   /**
-   * @summary Make this provider the default for its channel.
+   * Make this provider the default for its channel.
+   * @summary Make provider the default.
    */
   const makeDefaultProviderEndpoint = (
     id: string,
@@ -362,7 +427,8 @@ export const getNotifiableAPI = () => {
   };
 
   /**
-   * @summary Update provider operational status.
+   * Update provider operational status.
+   * @summary Update provider status.
    */
   const updateProviderStatusEndpoint = (
     id: string,
@@ -380,6 +446,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * List all available provider types that can be configured.
+   * @summary List available providers.
+   */
   const getAvailableProvidersEndpoint = (
     options?: SecondParameter<typeof serverAxios<AvailableProvidersResponse>>,
   ) => {
@@ -389,6 +459,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Get the configuration schema for a specific provider type.
+   * @summary Get provider configuration schema.
+   */
   const getProviderSchemaEndpoint = (
     providerType: ProviderType,
     options?: SecondParameter<typeof serverAxios<ProviderDefinitionResponse>>,
@@ -400,7 +474,8 @@ export const getNotifiableAPI = () => {
   };
 
   /**
-   * @summary Create a channel for an organization.
+   * Create a channel for an organization.
+   * @summary Create a channel.
    */
   const createChannelEndpoint = (
     createChannelRequest: CreateChannelRequest,
@@ -417,6 +492,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * List all channels for an organization.
+   * @summary List channels.
+   */
   const listChannelsEndpoint = (
     params?: ListChannelsEndpointParams,
     options?: SecondParameter<typeof serverAxios<ChannelResponse[]>>,
@@ -425,6 +504,7 @@ export const getNotifiableAPI = () => {
   };
 
   /**
+   * Delete a channel by ID.
    * @summary Delete a channel.
    */
   const deleteChannelEndpoint = (
@@ -443,6 +523,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Retrieve a single channel by its unique identifier.
+   * @summary Get a channel by ID.
+   */
   const getChannelByIdEndpoint = (
     id: string,
     options?: SecondParameter<typeof serverAxios<ChannelResponse>>,
@@ -451,6 +535,7 @@ export const getNotifiableAPI = () => {
   };
 
   /**
+   * Update a channel configuration.
    * @summary Update a channel.
    */
   const updateChannelEndpoint = (
@@ -469,6 +554,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Update an existing template by ID.
+   * @summary Update a template.
+   */
   const updateTemplateEndpoint = (
     id: string,
     templateUpdateRequest: TemplateUpdateRequest,
@@ -485,13 +574,21 @@ export const getNotifiableAPI = () => {
     );
   };
 
-  const getTemplateById = (
+  /**
+   * Retrieve a single template by its unique identifier.
+   * @summary Get a template by ID.
+   */
+  const getTemplateByIdEndpoint = (
     id: string,
     options?: SecondParameter<typeof serverAxios<TemplateResponse>>,
   ) => {
     return serverAxios<TemplateResponse>({ url: `/api/templates/${id}`, method: 'GET' }, options);
   };
 
+  /**
+   * Delete a template by ID.
+   * @summary Delete a template.
+   */
   const deleteTemplateEndpoint = (
     id: string,
     deleteTemplateRequest: DeleteTemplateRequest,
@@ -510,6 +607,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Resolve a template by (Id or Code) within an organization/channel/language with optional fallback.
+   * @summary Resolve a template.
    */
   const resolveTemplateEndpoint = (
     resolveRequest: ResolveRequest,
@@ -526,6 +624,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Retrieve a paged list of templates for an organization.
+   * @summary List templates.
+   */
   const getTemplateListEndpoint = (
     params?: GetTemplateListEndpointParams,
     options?: SecondParameter<typeof serverAxios<PagedResultOfTemplateResponse>>,
@@ -537,7 +639,8 @@ export const getNotifiableAPI = () => {
   };
 
   /**
-   * @summary Create a template
+   * Create a new notification template for an organization.
+   * @summary Create a template.
    */
   const createTemplateEndpoint = (
     templateCreateRequest: TemplateCreateRequest,
@@ -556,6 +659,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * List registered devices for a contact.
+   * @summary List devices.
    */
   const listDevicesEndpoint = (
     params: ListDevicesEndpointParams,
@@ -569,6 +673,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Register or update a device token for a contact.
+   * @summary Register a device.
    */
   const registerDeviceEndpoint = (
     registerDeviceRequest: RegisterDeviceRequest,
@@ -587,6 +692,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Unregister (deactivate) a device.
+   * @summary Unregister a device.
    */
   const unregisterDeviceEndpoint = (
     id: string,
@@ -606,6 +712,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Delete a contact within an organization.
+   * @summary Delete a contact.
    */
   const deleteContactEndpoint = (
     deleteContactRequest: DeleteContactRequest,
@@ -624,6 +731,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Get a contact by id within an organization.
+   * @summary Get a contact by ID.
    */
   const getContactEndpoint = (
     id: string,
@@ -634,6 +742,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Update an existing contact within an organization.
+   * @summary Update a contact.
    */
   const updateContactEndpoint = (
     id: string,
@@ -653,6 +762,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * List contacts for an organization with optional search.
+   * @summary List contacts.
    */
   const listContactsEndpoint = (
     params: ListContactsEndpointParams,
@@ -666,6 +776,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Create or update a contact within an organization.
+   * @summary Register a contact.
    */
   const registerContactEndpoint = (
     contactUpsertRequest: ContactUpsertRequest,
@@ -684,6 +795,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Include or exclude a contact in a static audience.
+   * @summary Add audience member.
    */
   const addAudienceMemberEndpoint = (
     id: string,
@@ -703,6 +815,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Create an audience (static list or dynamic segment).
+   * @summary Create an audience.
    */
   const createAudienceEndpoint = (
     audienceCreateRequest: AudienceCreateRequest,
@@ -721,6 +834,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * List audiences for an organization.
+   * @summary List audiences.
    */
   const listAudiencesEndpoint = (
     params: ListAudiencesEndpointParams,
@@ -734,6 +848,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Delete an audience group.
+   * @summary Delete an audience.
    */
   const deleteAudienceEndpoint = (
     deleteAudienceRequest: DeleteAudienceRequest,
@@ -752,6 +867,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Get contacts belonging to an audience (static list or dynamic segment).
+   * @summary Get audience contacts.
    */
   const getAudienceContactsEndpoint = (
     id: string,
@@ -766,6 +882,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Get an audience by id within an organization.
+   * @summary Get an audience by ID.
    */
   const getAudienceEndpoint = (
     id: string,
@@ -776,6 +893,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Update an audience group.
+   * @summary Update an audience.
    */
   const updateAudienceEndpoint = (
     id: string,
@@ -795,6 +913,7 @@ export const getNotifiableAPI = () => {
 
   /**
    * Remove a contact from a static audience.
+   * @summary Remove audience member.
    */
   const removeAudienceMemberEndpoint = (
     removeAudienceMemberRequest: RemoveAudienceMemberRequest,
@@ -811,6 +930,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Push a real-time event to connected subscription clients.
+   * @summary Push a real-time notification.
+   */
   const pushNotificationEndpoint = (
     pushNotificationRequest: PushNotificationRequest,
     options?: SecondParameter<typeof serverAxios<void>>,
@@ -826,6 +949,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Generate a new token for a subscription client.
+   * @summary Generate a subscription token.
+   */
   const generateTokenEndpoint = (
     generateTokenRequest: GenerateTokenRequest,
     options?: SecondParameter<typeof serverAxios<GenerateTokenResponse>>,
@@ -841,6 +968,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Mark a notification as read for a subscription client.
+   * @summary Consume a client notification.
+   */
   const consumeClientNotificationEndpoint = (
     token: string,
     id: string,
@@ -852,6 +983,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Count unread notifications for a subscription client.
+   * @summary Get client notification count.
+   */
   const getClientNotificationCountEndpoint = (
     token: string,
     options?: SecondParameter<typeof serverAxios<ClientNotificationCountResponse>>,
@@ -862,6 +997,10 @@ export const getNotifiableAPI = () => {
     );
   };
 
+  /**
+   * Retrieve notifications for a subscription client.
+   * @summary Get client notifications.
+   */
   const getClientNotificationsEndpoint = (
     token: string,
     params: GetClientNotificationsEndpointParams,
@@ -908,7 +1047,7 @@ export const getNotifiableAPI = () => {
     getChannelByIdEndpoint,
     updateChannelEndpoint,
     updateTemplateEndpoint,
-    getTemplateById,
+    getTemplateByIdEndpoint,
     deleteTemplateEndpoint,
     resolveTemplateEndpoint,
     getTemplateListEndpoint,
@@ -1027,8 +1166,8 @@ export type UpdateChannelEndpointResult = NonNullable<
 export type UpdateTemplateEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['updateTemplateEndpoint']>>
 >;
-export type GetTemplateByIdResult = NonNullable<
-  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getTemplateById']>>
+export type GetTemplateByIdEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getTemplateByIdEndpoint']>>
 >;
 export type DeleteTemplateEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['deleteTemplateEndpoint']>>
