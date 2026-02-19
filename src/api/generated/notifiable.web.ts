@@ -48,7 +48,7 @@ import type {
   DeleteProviderRequest,
   DeleteTemplateRequest,
   DeviceRegistrationRecord,
-  EnqueueNotificationRequests,
+  EnqueueNotificationRequest,
   EnqueueNotificationResponse,
   ErrorResponse,
   GenerateTokenRequest,
@@ -1574,14 +1574,14 @@ export function useGetNotificationsListEndpoint<
  * @summary Enqueue a notification for async delivery (email, sms, or push).
  */
 export const enqueueNotificationEndpoint = (
-  enqueueNotificationRequests: EnqueueNotificationRequests,
+  enqueueNotificationRequest: EnqueueNotificationRequest,
   signal?: AbortSignal,
 ) => {
   return customAxios<EnqueueNotificationResponse>({
     url: `/api/notifications`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: enqueueNotificationRequests,
+    data: enqueueNotificationRequest,
     signal,
   });
 };
@@ -1593,13 +1593,13 @@ export const getEnqueueNotificationEndpointMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof enqueueNotificationEndpoint>>,
     TError,
-    { data: EnqueueNotificationRequests },
+    { data: EnqueueNotificationRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof enqueueNotificationEndpoint>>,
   TError,
-  { data: EnqueueNotificationRequests },
+  { data: EnqueueNotificationRequest },
   TContext
 > => {
   const mutationKey = ['enqueueNotificationEndpoint'];
@@ -1611,7 +1611,7 @@ export const getEnqueueNotificationEndpointMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof enqueueNotificationEndpoint>>,
-    { data: EnqueueNotificationRequests }
+    { data: EnqueueNotificationRequest }
   > = (props) => {
     const { data } = props ?? {};
 
@@ -1624,7 +1624,7 @@ export const getEnqueueNotificationEndpointMutationOptions = <
 export type EnqueueNotificationEndpointMutationResult = NonNullable<
   Awaited<ReturnType<typeof enqueueNotificationEndpoint>>
 >;
-export type EnqueueNotificationEndpointMutationBody = EnqueueNotificationRequests;
+export type EnqueueNotificationEndpointMutationBody = EnqueueNotificationRequest;
 export type EnqueueNotificationEndpointMutationError = ErrorResponse | void;
 
 /**
@@ -1635,7 +1635,7 @@ export const useEnqueueNotificationEndpoint = <TError = ErrorResponse | void, TC
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof enqueueNotificationEndpoint>>,
       TError,
-      { data: EnqueueNotificationRequests },
+      { data: EnqueueNotificationRequest },
       TContext
     >;
   },
@@ -1643,7 +1643,7 @@ export const useEnqueueNotificationEndpoint = <TError = ErrorResponse | void, TC
 ): UseMutationResult<
   Awaited<ReturnType<typeof enqueueNotificationEndpoint>>,
   TError,
-  { data: EnqueueNotificationRequests },
+  { data: EnqueueNotificationRequest },
   TContext
 > => {
   const mutationOptions = getEnqueueNotificationEndpointMutationOptions(options);

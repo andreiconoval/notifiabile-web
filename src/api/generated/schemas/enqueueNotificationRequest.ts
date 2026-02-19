@@ -7,20 +7,20 @@
  */
 import type { NotificationChannelType } from './notificationChannelType';
 import type { RecipientSet } from './recipientSet';
-import type { EnqueueNotificationRequestsTemplate } from './enqueueNotificationRequestsTemplate';
-import type { EnqueueNotificationRequestsContent } from './enqueueNotificationRequestsContent';
-import type { EnqueueNotificationRequestsData } from './enqueueNotificationRequestsData';
+import type { EnqueueNotificationRequestTemplate } from './enqueueNotificationRequestTemplate';
+import type { EnqueueNotificationRequestContent } from './enqueueNotificationRequestContent';
+import type { EnqueueNotificationRequestData } from './enqueueNotificationRequestData';
 import type { NotificationPriority } from './notificationPriority';
 
-export interface EnqueueNotificationRequests {
+export interface EnqueueNotificationRequest {
   channelType?: NotificationChannelType;
   recipients?: RecipientSet;
   /** @nullable */
-  template?: EnqueueNotificationRequestsTemplate;
+  template?: EnqueueNotificationRequestTemplate;
   /** @nullable */
-  content?: EnqueueNotificationRequestsContent;
+  content?: EnqueueNotificationRequestContent;
   /** @nullable */
-  data?: EnqueueNotificationRequestsData;
+  data?: EnqueueNotificationRequestData;
   priority?: NotificationPriority;
   /** @nullable */
   notBefore?: string | null;

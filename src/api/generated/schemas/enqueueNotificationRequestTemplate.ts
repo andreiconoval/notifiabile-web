@@ -5,9 +5,9 @@
  * A simple example ASP.NET Core Web API
  * OpenAPI spec version: v1
  */
-import type { InlineContent } from './inlineContent';
+import type { TemplateRef } from './templateRef';
 
 /**
  * @nullable
  */
-export type EnqueueNotificationRequestsContent = InlineContent | null;
+export type EnqueueNotificationRequestTemplate = TemplateRef | null;

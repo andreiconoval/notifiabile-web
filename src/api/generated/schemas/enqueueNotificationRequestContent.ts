@@ -5,8 +5,9 @@
  * A simple example ASP.NET Core Web API
  * OpenAPI spec version: v1
  */
+import type { InlineContent } from './inlineContent';
 
 /**
  * @nullable
  */
-export type EnqueueNotificationRequestsData = { [key: string]: string } | null;
+export type EnqueueNotificationRequestContent = InlineContent | null;
