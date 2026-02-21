@@ -22,4 +22,6 @@ export interface RecipientSet {
   userIds?: string[] | null;
   /** @nullable */
   audienceIds?: string[] | null;
+  /** @nullable */
+  externalIds?: string[] | null;
 }

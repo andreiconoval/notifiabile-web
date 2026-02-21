@@ -887,12 +887,12 @@
           }
         ],
         "requestBody": {
-          "x-name": "EnqueueNotificationRequests",
+          "x-name": "EnqueueNotificationRequest",
           "description": "",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EnqueueNotificationRequests"
+                "$ref": "#/components/schemas/EnqueueNotificationRequest"
               }
             }
           },
@@ -3900,7 +3900,7 @@
           }
         }
       },
-      "EnqueueNotificationRequests": {
+      "EnqueueNotificationRequest": {
         "type": "object",
         "example": {
           "channelType": "email",
@@ -3911,7 +3911,8 @@
             "phoneNumbers": null,
             "deviceTokens": null,
             "userIds": null,
-            "audienceIds": null
+            "audienceIds": null,
+            "externalIds": null
           },
           "template": {
             "id": null,
@@ -3939,7 +3940,8 @@
               "phoneNumbers": null,
               "deviceTokens": null,
               "userIds": null,
-              "audienceIds": null
+              "audienceIds": null,
+              "externalIds": null
             },
             "$ref": "#/components/schemas/RecipientSet"
           },
@@ -4036,6 +4038,13 @@
             "items": {
               "type": "string",
               "format": "guid"
+            }
+          },
+          "externalIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
             }
           }
         }
