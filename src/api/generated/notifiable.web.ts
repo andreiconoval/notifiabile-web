@@ -92,6 +92,8 @@ import type {
   UpdateOrganizationRequest,
   UpdateProviderRequest,
   UpdateProviderStatusRequest,
+  ValidateProviderRequest,
+  ValidateProviderResponse,
 } from './schemas';
 
 import { customAxios } from '../http';
@@ -2301,6 +2303,89 @@ export const useUpdateProviderStatusEndpoint = <TError = void | void, TContext =
   TContext
 > => {
   const mutationOptions = getUpdateProviderStatusEndpointMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * Tests provider credentials and settings by performing live checks against the provider API.
+ * @summary Validate provider configuration.
+ */
+export const validateProviderEndpoint = (
+  id: string,
+  validateProviderRequest: ValidateProviderRequest,
+  signal?: AbortSignal,
+) => {
+  return customAxios<ValidateProviderResponse>({
+    url: `/api/providers/${id}/validate`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: validateProviderRequest,
+    signal,
+  });
+};
+
+export const getValidateProviderEndpointMutationOptions = <
+  TError = void | void,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof validateProviderEndpoint>>,
+    TError,
+    { id: string; data: ValidateProviderRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof validateProviderEndpoint>>,
+  TError,
+  { id: string; data: ValidateProviderRequest },
+  TContext
+> => {
+  const mutationKey = ['validateProviderEndpoint'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof validateProviderEndpoint>>,
+    { id: string; data: ValidateProviderRequest }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return validateProviderEndpoint(id, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ValidateProviderEndpointMutationResult = NonNullable<
+  Awaited<ReturnType<typeof validateProviderEndpoint>>
+>;
+export type ValidateProviderEndpointMutationBody = ValidateProviderRequest;
+export type ValidateProviderEndpointMutationError = void | void;
+
+/**
+ * @summary Validate provider configuration.
+ */
+export const useValidateProviderEndpoint = <TError = void | void, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof validateProviderEndpoint>>,
+      TError,
+      { id: string; data: ValidateProviderRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof validateProviderEndpoint>>,
+  TError,
+  { id: string; data: ValidateProviderRequest },
+  TContext
+> => {
+  const mutationOptions = getValidateProviderEndpointMutationOptions(options);
 
   return useMutation(mutationOptions, queryClient);
 };

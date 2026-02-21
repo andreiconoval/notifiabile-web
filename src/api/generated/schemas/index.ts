@@ -137,3 +137,6 @@ export * from './updateProviderRequest';
 export * from './updateProviderRequestSettings';
 export * from './updateProviderRequestStatus';
 export * from './updateProviderStatusRequest';
+export * from './validateProviderRequest';
+export * from './validateProviderResponse';
+export * from './validationCheckDto';

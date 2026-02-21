@@ -75,6 +75,8 @@ import type {
   UpdateOrganizationRequest,
   UpdateProviderRequest,
   UpdateProviderStatusRequest,
+  ValidateProviderRequest,
+  ValidateProviderResponse,
 } from './schemas';
 
 import { serverAxios } from '../http';
@@ -441,6 +443,26 @@ export const getNotifiableAPI = () => {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         data: updateProviderStatusRequest,
+      },
+      options,
+    );
+  };
+
+  /**
+   * Tests provider credentials and settings by performing live checks against the provider API.
+   * @summary Validate provider configuration.
+   */
+  const validateProviderEndpoint = (
+    id: string,
+    validateProviderRequest: ValidateProviderRequest,
+    options?: SecondParameter<typeof serverAxios<ValidateProviderResponse>>,
+  ) => {
+    return serverAxios<ValidateProviderResponse>(
+      {
+        url: `/api/providers/${id}/validate`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: validateProviderRequest,
       },
       options,
     );
@@ -1039,6 +1061,7 @@ export const getNotifiableAPI = () => {
     updateProviderEndpoint,
     makeDefaultProviderEndpoint,
     updateProviderStatusEndpoint,
+    validateProviderEndpoint,
     getAvailableProvidersEndpoint,
     getProviderSchemaEndpoint,
     createChannelEndpoint,
@@ -1141,6 +1164,9 @@ export type MakeDefaultProviderEndpointResult = NonNullable<
 >;
 export type UpdateProviderStatusEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['updateProviderStatusEndpoint']>>
+>;
+export type ValidateProviderEndpointResult = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['validateProviderEndpoint']>>
 >;
 export type GetAvailableProvidersEndpointResult = NonNullable<
   Awaited<ReturnType<ReturnType<typeof getNotifiableAPI>['getAvailableProvidersEndpoint']>>

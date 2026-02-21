@@ -1,7 +1,16 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, LucideIcon, Mail, MessageSquare, Settings, Smartphone, Star } from 'lucide-react';
+import {
+  FlaskConical,
+  Globe,
+  LucideIcon,
+  Mail,
+  MessageSquare,
+  Settings,
+  Smartphone,
+  Star,
+} from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -13,6 +22,7 @@ import type { Provider } from '../types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAvailableProviders } from '../hooks/use-available-providers';
 import { UpdateProviderDialog } from './update-provider-dialog';
+import { ValidateProviderDialog } from './validate-provider-dialog';
 
 // Icon per provider type — falls back to channel-based icon
 const providerIconMap: Record<string, LucideIcon> = {
@@ -139,9 +149,15 @@ export function ProviderCard({ provider }: { provider: Provider }) {
                 </Button>
               }
             />
-            <Button size="sm" variant="outline" className="flex-1">
-              Test
-            </Button>
+            <ValidateProviderDialog
+              provider={provider}
+              trigger={
+                <Button size="sm" variant="outline" className="flex-1">
+                  <FlaskConical className="h-4 w-4 mr-2" />
+                  Test
+                </Button>
+              }
+            />
           </div>
         </div>
       </CardContent>
