@@ -60,6 +60,8 @@ export default function CreateTemplateDialog({
         pushTitle: formData.get('pushTitle') as string,
         pushBody: formData.get('pushBody') as string,
         smsText: formData.get('smsText') as string,
+        internalTitle: formData.get('internalTitle') as string,
+        internalBody: formData.get('internalBody') as string,
       },
     };
 

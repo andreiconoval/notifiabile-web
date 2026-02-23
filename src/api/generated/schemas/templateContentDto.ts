@@ -19,4 +19,8 @@ export interface TemplateContentDto {
   pushTitle?: string | null;
   /** @nullable */
   pushBody?: string | null;
+  /** @nullable */
+  internalTitle?: string | null;
+  /** @nullable */
+  internalBody?: string | null;
 }

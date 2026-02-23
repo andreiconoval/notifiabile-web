@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus, Save, Trash2 } from 'lucide-react';
+import { Save, Trash2 } from 'lucide-react';
 import { TemplateResponse } from '@/api/generated/schemas';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   getGetTemplateListEndpointQueryKey,
+  useDeleteTemplateEndpoint,
   useUpdateTemplateEndpoint,
 } from '@/api/generated/notifiable.web';
 
@@ -50,7 +51,8 @@ export default function UpdateTemplateDialog({
   const initialFormValues = mapTemplateToFormValuesFromResponse(editTemplate);
 
   const queryClient = useQueryClient();
-  const { mutateAsync: updateTemplate, isSuccess, isError, error } = useUpdateTemplateEndpoint();
+  const { mutateAsync: updateTemplate, isError } = useUpdateTemplateEndpoint();
+  const { mutateAsync: deleteTemplateMutation } = useDeleteTemplateEndpoint();
 
   const handleSave = async () => {
     if (!formRef.current) return;
@@ -87,18 +89,26 @@ export default function UpdateTemplateDialog({
 
   async function deleteTemplate(id: string) {
     if (!editTemplate) return;
+    try {
+      await deleteTemplateMutation({ id, data: {} });
+      toast.success('Template deleted successfully');
+      await queryClient.invalidateQueries({
+        queryKey: getGetTemplateListEndpointQueryKey(),
+      });
+      setDeleteConfirmId(null);
+      setUpdateDialogOpen(false);
+      onTemplateUpdated?.();
+    } catch (err) {
+      console.error('Failed to delete template:', err);
+      toast.error('Failed to delete template');
+    }
   }
 
   return (
     <>
       <Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
         <DialogTrigger asChild>
-          {trigger ?? (
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Edit Template
-            </Button>
-          )}
+          {trigger ?? <Button>Edit Template</Button>}
         </DialogTrigger>
 
         {/* only width + remove default padding so we can control layout */}
@@ -131,7 +141,7 @@ export default function UpdateTemplateDialog({
                 <Button
                   variant="destructive"
                   onClick={() => {
-                    setDeleteConfirmId('test');
+                    setDeleteConfirmId(editTemplate.id ?? null);
                   }}
                   className="w-full"
                 >

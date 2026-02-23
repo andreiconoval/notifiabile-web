@@ -69,5 +69,27 @@ export function WebPushFields() {
 }
 
 export function InternalFields() {
-  return <></>;
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor="internalTitle">Title</Label>
+        <Input
+          id="internalTitle"
+          name="internalTitle"
+          placeholder="Notification title"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="internalBody">Body</Label>
+        <Textarea
+          id="internalBody"
+          name="internalBody"
+          placeholder={'Hello {{name}}, you have a new notification.'}
+          rows={8}
+          required
+        />
+        <p className="text-xs text-gray-500">Use {'{{variableName}}'} for dynamic content</p>
+      </div>
+    </>
+  );
 }

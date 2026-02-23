@@ -1,11 +1,16 @@
+'use client';
+
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, Mail, MessageSquare, Smartphone, AppWindow } from 'lucide-react';
 import { TemplateResponse, NotificationChannelType } from '@/api/generated/schemas';
 import UpdateTemplateDialog from './update-template-dialog';
+import TemplatePreviewDialog from './template-preview-dialog';
 
 export default function TemplateCard({ template }: { template: TemplateResponse }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const channelIcons: Record<NotificationChannelType, any> = {
     email: Mail,
     push: Smartphone,
@@ -47,10 +52,16 @@ export default function TemplateCard({ template }: { template: TemplateResponse 
                 <span className="text-gray-500">Title:</span> {template.content.pushTitle}
               </p>
             )}
+            {template.content?.internalTitle && (
+              <p className="mb-2">
+                <span className="text-gray-500">Title:</span> {template.content.internalTitle}
+              </p>
+            )}
             <p className="text-gray-600 line-clamp-2 font-mono text-xs">
               {template.content?.emailHtml ||
                 template.content?.pushBody ||
                 template.content?.smsText ||
+                template.content?.internalBody ||
                 ''}
             </p>
           </div>
@@ -64,7 +75,12 @@ export default function TemplateCard({ template }: { template: TemplateResponse 
               </div>
             )} */}
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1">
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1"
+              onClick={() => setPreviewOpen(true)}
+            >
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
@@ -74,6 +90,11 @@ export default function TemplateCard({ template }: { template: TemplateResponse 
               </Button>
             </UpdateTemplateDialog>
           </div>
+          <TemplatePreviewDialog
+            template={template}
+            open={previewOpen}
+            onOpenChange={setPreviewOpen}
+          />
         </div>
       </CardContent>
     </Card>

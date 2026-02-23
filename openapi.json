@@ -1375,6 +1375,72 @@
         ]
       }
     },
+    "/api/providers/{id}/validate": {
+      "post": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Validate provider configuration.",
+        "description": "Tests provider credentials and settings by performing live checks against the provider API.",
+        "operationId": "ValidateProviderEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "x-Organization-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "guid",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "ValidateProviderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateProviderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateProviderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider not found."
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/channels/providers/available": {
       "get": {
         "summary": "List available providers.",
@@ -4341,6 +4407,52 @@
           }
         }
       },
+      "ValidateProviderResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isValid": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationCheckDto"
+            }
+          }
+        }
+      },
+      "ValidationCheckDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ValidateProviderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          }
+        }
+      },
       "AvailableProvidersResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -4681,6 +4793,14 @@
             "nullable": true
           },
           "pushBody": {
+            "type": "string",
+            "nullable": true
+          },
+          "internalTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "internalBody": {
             "type": "string",
             "nullable": true
           }

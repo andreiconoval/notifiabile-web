@@ -398,6 +398,43 @@ export const TemplateForm = forwardRef<TemplateFormHandle, TemplateFormProps>(
               </div>
             </div>
           )}
+          {/* Internal content */}
+          {!isExternal && channelType == NotificationChannelType.Internal && (
+            <div className="rounded-md border p-4 space-y-3">
+              <h3 className="text-sm font-semibold">
+                Internal content
+                {mode === 'create' && (
+                  <span className="ml-1 text-xs text-muted-foreground"> (optional)</span>
+                )}
+              </h3>
+
+              <FormField
+                control={control}
+                name="internalTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="internalBody"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Body</FormLabel>
+                    <FormControl>
+                      <Textarea className="min-h-[60px]" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+
           {/* No submit button here – parent decides */}
           {isSubmitting && <p className="text-xs text-muted-foreground">Validating…</p>}
         </div>

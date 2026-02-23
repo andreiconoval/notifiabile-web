@@ -25,6 +25,9 @@ export interface TemplateFormValues {
   pushTitle: string;
   pushBody: string;
   pushData: { key: string; value: string }[];
+
+  internalTitle: string;
+  internalBody: string;
 }
 
 export interface TemplateFormProps {
@@ -63,6 +66,9 @@ export const emptyTemplateFormValues: TemplateFormValues = {
   pushTitle: '',
   pushBody: '',
   pushData: [],
+
+  internalTitle: '',
+  internalBody: '',
 };
 
 export const mapTemplateToFormValuesFromResponse = (t: TemplateResponse): TemplateFormValues => {
@@ -90,6 +96,8 @@ export const mapTemplateToFormValuesFromResponse = (t: TemplateResponse): Templa
     pushTitle: content.pushTitle ?? '',
     pushBody: content.pushBody ?? '',
     // pushData: pushDataArray,
+    internalTitle: content.internalTitle ?? '',
+    internalBody: content.internalBody ?? '',
   };
 };
 
@@ -122,6 +130,8 @@ export const mapFormValuesToTemplateUpdateRequest = (
       pushTitle: values.pushTitle || null,
       pushBody: values.pushBody || null,
       // pushData,
+      internalTitle: values.internalTitle || null,
+      internalBody: values.internalBody || null,
     },
   };
 };
@@ -155,6 +165,8 @@ export const mapFormValuesToTemplateCreateRequest = (
       pushTitle: values.pushTitle || null,
       pushBody: values.pushBody || null,
       // pushData,
+      internalTitle: values.internalTitle || null,
+      internalBody: values.internalBody || null,
     },
   };
 };
